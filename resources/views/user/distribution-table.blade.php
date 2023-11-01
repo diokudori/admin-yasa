@@ -75,7 +75,7 @@
                   <option value="2">Pengganti</option>
                   <option value="3">Perwakilan</option>
                   <option value="4">Kolektif</option>
-                  </select>
+                    </select>
               </div>
     <div class="previews"></div>
     

@@ -34,6 +34,15 @@
                     <label for="item_code">Bulan Penyaluran</label>
                     <input type="text" name="bulan" class="form-control" value="{{$bulans}}">
                   </div>
+
+                  <div class="form-group">
+                    <label for="item_code">Jenis Penerima</label>
+                    <select name="jenis_penerima" id="jenis_penerima" class="form-control select2">
+                      <option value="utama">UTAMA</option>
+                      <option value="tambahan">TAMBAHAN</option>
+                    </select>
+                  </div>
+                  
                 <div class="form-group">
                 	
                     <label for="item_code">Wilayah</label>

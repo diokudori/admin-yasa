@@ -67,6 +67,27 @@
               </select>
         		</div>
         	</div>
+          <div class="col-md-3 pbp-opt" >
+            
+            <div class="form-group">
+              <label>Jenis Penerima</label>
+              <select name="jenis_pbp" id="jenis_pbp" class="form-control select2">
+                <option value="">Pilih Jenis Penerima</option>       
+                <option value="utama">Utama</option>
+                <option value="tambahan">Tambahan</option>
+                <option value="all">Semua</option>
+                <!-- <option value="mysql">Jawa Timur</option>        -->
+                <!-- <option value="sulut_db">Sulawesi Utara</option>       
+                <option value="gto_db">Gorontalo</option>       
+                <option value="papua_db">Papua</option>       
+                <option value="pegunungan_papua">Papua Pegunungan</option>       
+                <option value="tengah_papua">Papua Tengah</option>       
+                <option value="selatan_papua">Papua Selatan</option>       
+                <option value="barat_papua">Papua Barat</option>       
+                <option value="baratdaya_papua">Papua Baratdaya</option>      -->  
+              </select>
+            </div>
+          </div>
         	<!-- <div class="col-md-3">
         		<div class="form-group">
         			<label for="item_code">Kota/Kabupaten</label>
@@ -227,12 +248,14 @@
    <script type="text/javascript">
     $(document).ready(function(){
       $('.prov-opt').hide();
+      $('.pbp-opt').hide();
       $('.overlay').hide();
       $('.breadcrumb').hide();
       $('#form-option-real').hide();
    var table_real;
     var tahap = $("#tahap");
     var prov = $("#provinsi");
+    var pbp = $("#jenis_pbp");
     var admin = $('input[name=admin]').val();
       
     // var kab = $("#kabupaten");
@@ -242,6 +265,7 @@
     var kab = '';
     var kec = '';
     var kel = '';
+
 
     var detil_nama = 'Kota/Kab';
 
@@ -260,8 +284,19 @@ tahap.on("change", function(){
   }
 });
 prov.on("change", function(){
+if(prov.val()==''){
+      $('.pbp-opt').hide();
+     
+  }else{
+      $('.pbp-opt').show();
+  }
+    
+  });
+
+pbp.on("change", function(){
+
 $('.overlay').show();
-  if(prov.val()==''){
+  if(pbp.val()==''){
       $('#show-tables').attr('disabled','');
      
   }else{
@@ -269,75 +304,31 @@ $('.overlay').show();
 
     $.ajax({
           type: 'GET',
-          url: "<?=url('realisasi/tahap/table/all')?>",
-          data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val()}
+          url: "<?=url('realisasi/tahap/table/kab/list')?>",
+          data: { db: prov.val(), kab: kab, tahap: tahap.val()}
         }).then(function (data) {
-          // if(kab.val()!=''){
-          //   table_real.destroy();
-          // }
-          $('.breadcrumb').html('');
-          $('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="db" data-val="'+prov.val()+'">'+$('#provinsi option:selected').text()+'</a></li>');
-          $('.breadcrumb').show();
+        
           console.log(data);
-          var no = 0;
-          var str = '';
-          var id = '';
-          if(kab==''){
-          	id = 'kab';
-          }else{
-          	if(kec==''){
-          		id = 'kec';
-          	}else{
-          		if(kel==''){
-          			id = 'kel';
-          		}else{
-          			id = 'pb'; 
-          		}
-          	}
-          }
+            var no = 0;
+             $('#table-real').html('');
             for(var i in data){
               
-                // if(kel.val()==''){
+         
                     no += 1;
-                    str += '<tr>';
-                    str += '<td>'+no+'</td>';
-                    str += '<td><a href="#" class="btn-name" data-val="'+data[i].nama+'" data-id="'+id+'">'+data[i].nama+'</a></td>';
-                    str += '<td><span class="badge bg-info">'+data[i].kuantum+'</span></td>';
-                    // str += '<td>'+data[i].transporter+'</td>';
-                    // str += '<td>'+data[i].persen_transporter+'%</td>';
-                    str += '<td><span class="badge bg-success ">'+data[i].pbp+'</span></td>';
-                    str += '<td>'+data[i].persen_pbp+'%</td>';
-                    str += '<td><span class="badge bg-danger ">'+data[i].sisa+'</span></td>';
-                    str += '<td>'+data[i].persen_sisa+'%</td>';
-                    str += '</tr>';
-                // }else{
-                //     no += 1;
-                //     str += '<tr>';
-                //     str += '<td>'+no+'</td>';
-                //     str += '<td>'+data[i].nama+'</td>';
-                //     str += '<td>'+data[i].alamat+'</td>';
-                //     str += '<td><a href="'+data[i].path_pbp+'" target="_blank">Lihat foto</a></td>';
-                //     str += '<td><span class="badge '+data[i].status_penerima_class+'">'+data[i].status_penerima+'</span></td>';
-                //     str += '</tr>';
-                // }
-                
-                
-                        //dataAll.push(data[i][j]);
+                    getDataKabAll(data[i], no, data.length);
+          
               
               
             }
 
-            $('#table-real').html(str);
-            $('.overlay-real').hide();
-            // $('.table-real').addClass('datatables');
-           // table_real = $('.table-real').DataTable();
+            
         });
 
 
         $.ajax({
           type: 'GET',
           url: "<?=url('realisasi/tahap/table/total')?>",
-          data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val()}
+          data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
         }).then(function (data) {
           console.log(data);
           var no = 0;
@@ -361,9 +352,7 @@ $('.overlay').show();
             
         });
   }
-
-    
-  });
+});
 
 $('select[name=tgl_serah]').on("change", function(){
     refreshData('kel',null);
@@ -384,6 +373,67 @@ $('ol.breadcrumb').on('click', 'a.btn-breadcrumb', function(){
 	refreshData(id,val);
 
 });
+
+function getDataKabAll(param, no, max){
+
+  param.db = prov.val();
+  param.tahap = tahap.val();
+  param.pbp = pbp.val();
+   $.ajax({
+          type: 'GET',
+          url: "<?=url('realisasi/tahap/table/all/kab')?>",
+          data: param
+        }).then(function (data) {
+          // if(kab.val()!=''){
+          //   table_real.destroy();
+          // }
+          $('.breadcrumb').html('');
+          $('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="db" data-val="'+prov.val()+'">'+$('#provinsi option:selected').text()+'</a></li>');
+          $('.breadcrumb').show();
+          console.log(data);
+         
+          var str = '';
+          var id = '';
+          if(kab==''){
+            id = 'kab';
+          }else{
+            if(kec==''){
+              id = 'kec';
+            }else{
+              if(kel==''){
+                id = 'kel';
+              }else{
+                id = 'pb'; 
+              }
+            }
+          }
+            for(var i in data){
+              
+         
+                    str += '<tr>';
+                    str += '<td>'+no+'</td>';
+                    str += '<td><a href="#" class="btn-name" data-val="'+data[i].nama+'" data-id="'+id+'">'+data[i].nama+'</a></td>';
+                    str += '<td><span class="badge bg-info">'+data[i].kuantum+'</span></td>';
+                    // str += '<td>'+data[i].transporter+'</td>';
+                    // str += '<td>'+data[i].persen_transporter+'%</td>';
+                    str += '<td><span class="badge bg-success ">'+data[i].pbp+'</span></td>';
+                    str += '<td>'+data[i].persen_pbp+'%</td>';
+                    str += '<td><span class="badge bg-danger ">'+data[i].sisa+'</span></td>';
+                    str += '<td>'+data[i].persen_sisa+'%</td>';
+                    str += '</tr>';
+          
+              
+              
+            }
+
+            $('#table-real').append(str);
+            if(no==max){
+              $('.overlay-real').hide();
+            }
+            
+        });
+
+}
 
 function refreshData(id, val){
 	var db = prov.val();
@@ -439,7 +489,7 @@ function refreshData(id, val){
 	$.ajax({
           type: 'GET',
           url: "<?=url('realisasi/tahap/table/all')?>",
-          data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: tgl_serah}
+          data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: tgl_serah, pbp: pbp.val()}
         }).then(function (data) {
           // if(kab.val()!=''){
           //   table_real.destroy();
@@ -517,7 +567,7 @@ function refreshData(id, val){
         $.ajax({
           type: 'GET',
           url: "<?=url('realisasi/tahap/table/total')?>",
-          data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val()}
+          data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
         }).then(function (data) {
           console.log(data);
           var no = 0;
@@ -641,7 +691,7 @@ function refreshData(id, val){
         $.ajax({
           type: 'GET',
           url: "<?=url('realisasi/table/all')?>",
-          data: { db: prov.val(), kab: kab.val(), kec: kec.val(), kel: kel.val()}
+          data: { db: prov.val(), kab: kab.val(), kec: kec.val(), kel: kel.val(), pbp: pbp.val()}
         }).then(function (data) {
           // if(kab.val()!=''){
           //   table_real.destroy();
@@ -689,7 +739,7 @@ function refreshData(id, val){
         $.ajax({
           type: 'GET',
           url: "<?=url('realisasi/table/total')?>",
-          data: { db: prov.val(), kab: kab.val(), kec: kec.val(), kel: kel.val()}
+          data: { db: prov.val(), kab: kab.val(), kec: kec.val(), kel: kel.val(), pbp: pbp.val()}
         }).then(function (data) {
           console.log(data);
           var no = 0;

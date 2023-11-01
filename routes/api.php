@@ -688,6 +688,7 @@ Route::any('/data/sync/list', function (Request $request) {
 });
 
 
+Route::any('/column/add/prefix/b', [HelperController::class,'generatePrefixB']);
 Route::any('/column/add/prefix/new', [HelperController::class,'generatePrefixNew']);
 Route::any('/column/add/prefix', [HelperController::class,'generatePrefix']);
 Route::any('/column/alter/prefix', [HelperController::class,'alterPrefix']);
@@ -697,47 +698,17 @@ Route::any('/column/truncate', [HelperController::class,'truncateFields']);
 
 Route::get('/settings/tahap', [HelperController::class,'settingsTahap']);
 
+Route::get('/bulog/delete', [HelperController::class,'bulogFormHapus']);
 
-Route::any('/bulog/insert', function (Request $request) {
-    $endpoint = "https://bpb-sandbox.bulog.co.id/api/transporter/insert/";
-    //LIVE
-    // $endpoint = "https://bpb.bulog.co.id";
-    //DEV
-    $transporter_key = 'YAT_KEY_gshuy';
-    //PROD
-    // $transporter_key = 'YAT_KEY_zvqXIcAOhy';
-
-    $client = new \GuzzleHttp\Client();
-
-    $response = $client->request('POST', $endpoint, ['form_params' => [
-        'tranporter_key' => $transporter_key, 
-        'no_out' => '',
-        'transportec_doc' => 'DOC-1234',
-        'tanggal'=>'2023-10-15',
-        'tanggal_alokasi'=>'2023-10-15',
-        'transporter_bast'=>'BAST-123',
-        'titik_penyerahan'=>'Kantor Lurah',
-        'kelurahan'=>'Desa ABC',
-        'kecamatan'=>'Taman',
-        'kabupaten'=>'Sidoarjo',
-        'provinsi'=>'Jawa Timur',
-        'kuantum'=>'1000',
-        'jumlah_pbp'=>'80',
-        'jumlah_sptjm'=>'20',
-        'kecamatan_id'=>'12623',
-    ]]);
-
-    // url will be: http://my.domain.com/test.php?key1=5&key2=ABC;
-
-    $statusCode = $response->getStatusCode();
-    $content = $response->getBody();
-
-    // or when your server returns json
-    // $content = json_decode($response->getBody(), true);
-    print_r($statusCode);
-    print_r($content);
-    // return $content;
+Route::get('/pbp/add', [HelperController::class,'tambahanPbp']);
+Route::get('/pbp/insert', [HelperController::class,'insertPbpTambahan']);
+Route::get('/user/hash', function(Request $request){
+    echo $password = \Hash::make($request->password);
 });
+
+Route::get('/migration/list', [HelperController::class,'migrationList']);
+Route::get('/migrate/{tahap}/{kprk}', [HelperController::class,'migratePbp']);
+
 
 
 

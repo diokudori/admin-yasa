@@ -99,13 +99,21 @@ Route::get('realisasi/table/total', [UserController::class,'realTableTotal']);
 Route::get('realisasi/tahap/table/all', [UserController::class,'realTahapTableAll']);
 Route::get('realisasi/tahap/table/total', [UserController::class,'realTahapTableTotal']);
 
+Route::get('realisasi/tahap/table/all/kab', [UserController::class,'realTahapTableAllKab']);
+Route::get('realisasi/tahap/table/total/kab', [UserController::class,'realTahapTableTotalKab']);
+
+Route::get('realisasi/tahap/table/kab/list', [UserController::class,'realTahapTableKabList']);
+
 Route::get('entry/distribution', [UserController::class,'entryDistribution']);
 Route::get('entry/distribution/table', [UserController::class,'entryDistributionTable']);
 Route::post('entry/distribution/list', [UserController::class,'entryDistributionList']);
 Route::post('entry/distribution/upload', [UserController::class,'entryDistributionUpload']);
 
-Route::get('entry/bulog', [UserController::class,'entryBulog']);
+Route::get('bulog/entry', [UserController::class,'BulogEntry']);
+Route::get('bulog/list', [UserController::class,'BulogList']);
+Route::post('bulog/list/data', [UserController::class,'BulogListData']);
 Route::get('bulog/data/kec', [UserController::class,'bulogDataKec']);
+Route::get('bulog/data/riwayat', [UserController::class,'bulogDataRiwayat']);
 Route::post('bulog/form/simpan', [UserController::class,'bulogFormSimpan']);
 
 

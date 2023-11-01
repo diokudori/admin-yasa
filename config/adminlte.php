@@ -308,12 +308,12 @@ return [
             'icon'        => 'fas fa-fw fa-tachometer-alt',
             'can'         => 'manage-dashboard'
         ],
-        [
-            'text'        => 'Dashboard Realisasi',
-            'url'         => 'home/realisasi',
-            'icon'        => 'fas fa-fw fa-tachometer-alt',
-            'can'         => 'manage-dashboard'
-        ],
+        // [
+        //     'text'        => 'Dashboard Realisasi',
+        //     'url'         => 'home/realisasi',
+        //     'icon'        => 'fas fa-fw fa-tachometer-alt',
+        //     'can'         => 'manage-dashboard'
+        // ],
         [
             'text'        => 'Dashboard Realisasi Tahap',
             'url'         => 'home/realisasi/tahap',
@@ -327,8 +327,14 @@ return [
             'can'         => 'manage-pbp'
         ],
         [
+            'text' => 'Daftar Penyaluran BULOG',
+            'url'  => 'bulog/list',
+            'icon' => 'far fa-fw fa-circle',
+            'can'  => 'manage-gudang'
+        ],
+        [
             'text' => 'Entry Penyaluran BULOG',
-            'url'  => 'entry/bulog',
+            'url'  => 'bulog/entry',
             'icon' => 'far fa-fw fa-circle',
             'can'  => 'manage-gudang'
         ],

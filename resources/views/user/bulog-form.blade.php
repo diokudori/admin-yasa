@@ -11,6 +11,17 @@
         <div class="row">
           <!-- left column -->
           <div class="col-md-6 col-sm-12">
+          	@if (\Session::has('success'))
+    <div class="alert alert-success">
+        <h4>{!! \Session::get('success') !!}</h4>
+    </div>
+@endif
+@if($errors->any())
+<div class="alert alert-danger">
+	<h4>{{$errors->first()}}</h4>
+
+</div>
+@endif
             <!-- Horizontal Form -->
             <div class="card card-info">
               <!-- /.card-header -->
@@ -64,17 +75,18 @@
                       </select>
                   </div>
                   <div class="form-group ">
-                    <label for="item_description">Transporter DOC</label>
-                    <input name="transporter_doc" id="transporter_doc" class="form-control" />
+                    <label for="item_description">Nomor DO</label>
+                    <input name="transporter_doc" id="transporter_doc" class="form-control" required />
+
                   </div>
                   <div class="form-group ">
-                    <label for="item_description">Transporter BAST</label>
-                    <input name="transporter_bast" id="transporter_bast" class="form-control" />
+                    <label for="item_description">Nomor Surat Jalan</label>
+                    <input name="transporter_bast" id="transporter_bast" class="form-control" required />
                   </div>
                   <div class="form-group">
                 <label>Tanggal Alokasi</label>
                 <div class="col-sm-10 input-group date" id="expdate" data-target-input="nearest">
-                        <input type="text" name="tanggal_alokasi" class="form-control datetimepicker-input" data-target="#expdate" readonly="true"/>
+                        <input type="text" name="tanggal_alokasi" class="form-control datetimepicker-input" data-target="#expdate" readonly="true" required />
                         <div class="input-group-append" data-target="#expdate" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -82,7 +94,7 @@
               </div>
               <div class="form-group">
                     <label for="item_description">Titik Penyerahan</label>
-                    <input name="titik_penyerahan" id="titik_penyerahan" class="form-control" />
+                    <input name="titik_penyerahan" id="titik_penyerahan" class="form-control" required />
                   </div>
                 <div class="form-group">
                     <label for="item_description">Kuantum</label>
@@ -90,13 +102,13 @@
                   </div>
                   <div class="form-group ">
                     <label for="item_description">Jumlah PBP</label>
-                    <input name="jumlah_pbp" id="jumlah_pbp" class="form-control" />
+                    <input name="jumlah_pbp" id="jumlah_pbp" class="form-control" required />
                   </div>
                   <div class="form-group ">
                     <label for="item_description">Jumlah SPTJM</label>
-                    <input name="jumlah_sptjm" id="jumlah_sptjm" class="form-control" />
+                    <input name="jumlah_sptjm" id="jumlah_sptjm" class="form-control" required />
                   </div>
-
+                  <div id="sudah_hit" class="alert alert-success" style="display: none;">Sudah Hit Ke Bulog</div>
 
 
 
@@ -104,7 +116,7 @@
                 <!-- /.card-body -->
                 <div class="card-footer">
                   <!-- <button type="submit" class="btn btn-default">Cancel</button> -->
-                  <button type="submit" class="btn btn-info float-right">Submit</button>
+                  <button type="submit" class="btn btn-info float-right btn-submit">Submit</button>
                   
                 </div>
                 <!-- /.card-footer -->
@@ -270,26 +282,29 @@ kab.on("change", function(){
 
 
 	kel.on("change", function(){
-
+		var tahap = $('#tahap');
 		$.ajax({
           type: 'GET',
           url: "<?=url('realisasi/table/total')?>",
-          data: { db: db.val(), kab: kab.val(), kec: kec.val(), kel: kel.val()}
+          data: { db: db.val(), kab: kab.val(), kec: kec.val(), kel: kel.val(), tahap: tahap.val()}
         }).then(function (data) {
           console.log(data);
          $('input[name=kuantum').val(data.kuantum);
           getBulogKec();
+
               
             
         });
 
 	});
 
-	$('input[name=jumlah_sptjm]').on('focusout',function(){
-		var pbp = $('input[name=jumlah_pbp').val();
-		var newpbp = pbp-$(this).val();
-		$('input[name=jumlah_pbp').val(newpbp);
-	});
+	kel.trigger('change');
+
+	// $('input[name=jumlah_sptjm]').on('focusout',function(){
+	// 	var pbp = $('input[name=jumlah_pbp').val();
+	// 	var newpbp = pbp-$(this).val();
+	// 	$('input[name=jumlah_pbp').val(newpbp);
+	// });
 
 
 //   $("#bulog-form").on("submit", function(event){
@@ -317,8 +332,51 @@ kab.on("change", function(){
           data: { kec: kec.val()}
         }).then(function (data) {
           console.log(data);
-         $('input[name=kecamatan_id').val(data.kec_id);
-              
+         $('input[name=kecamatan_id]').val(data.kec_id);
+           getBulogRiwayat(data.kec_id);
+            
+        });
+  }
+
+  function getBulogRiwayat(kec_id){
+  	var tahap = $('select[name=tahap]').val();
+  	var db = $('input[name=db]').val();
+
+  		$.ajax({
+          type: 'GET',
+          url: "<?=url('bulog/data/riwayat')?>",
+          data: { kelurahan: kel.val(), kecamatan_id: kec_id, db: db, tahap: tahap}
+        }).then(function (data) {
+          console.log(data);
+
+          if(data.transporter_bast!=null){
+          	$('input[name=transporter_bast]').val(data.transporter_bast);
+	          $('input[name=transporter_doc]').val(data.transporter_doc);
+	          $('input[name=tanggal_alokasi]').val(data.tanggal_alokasi);
+	          $('input[name=titik_penyerahan]').val(data.titik_penyerahan);
+	          $('input[name=kuantum]').val(data.kuantum);
+	          $('input[name=jumlah_pbp]').val(data.jumlah_pbp+data.jumlah_sptjm);
+	          $('input[name=jumlah_sptjm]').val(data.jumlah_sptjm);
+	          if(data.status_hit=='1'){
+	          	$('#sudah_hit').show();
+		          $('.btn-submit').attr('disabled','');
+		        }
+          }else{
+          	$('input[name=transporter_bast]').val('');
+	          $('input[name=transporter_doc]').val('');
+	          $('input[name=tanggal_alokasi]').val('');
+	          $('input[name=titik_penyerahan]').val('');
+	          // $('input[name=kuantum]').val('');
+	          $('input[name=jumlah_pbp]').val('');
+	          $('input[name=jumlah_sptjm]').val('');
+	          $('#sudah_hit').hide();
+	          
+	          	$('.btn-submit').attr('disabled','').removeAttr('disabled');
+	          
+	          
+          }
+
+          
             
         });
   }
