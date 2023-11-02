@@ -1584,6 +1584,20 @@ class UserController extends Controller
     	$data['wilayah'] = DB::table('users')->select('name')->where('id','!=','34')->groupBy('name')->get();
     	$data['wil'] = Auth::user()->name;
     	$data['bulans'] = $this->bulans[date('m')];
+        $data['bulan'] = array (
+        1 => 'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+    );
     	return view('user/bast-form')->with($data);
     }
 
@@ -1610,14 +1624,40 @@ class UserController extends Controller
             if($request->jenis_penerima=='tambahan'){
                 $list = $list->where('path_ktp','B');
             }else if($request->jenis_penerima=='utama'){
-                $list = $list->where('path_ktp', NULL);
+                $list = $list->whereIn('path_ktp', ['',NULL]);
+                
             }
 
     		$list = $list->orderBy("no_urut","asc")
     		// ->limit("35")
     		->get();
          $provinsi = DB::connection($user->db)->table($user->name)->first()->provinsi;
+
+         $kode_kel = DB::connection($user->db)->table('data_kelurahan')
+            ->where("kabupaten", $request->kabupaten)
+            ->where("kecamatan", $request->kecamatan)
+            ->where("kelurahan", $request->kelurahan)->first()->kode_kel;
+
     		$chunk = array_chunk($list->toArray(), 15);
+
+
+$bulan = array (
+        1 => 'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+    );
+
+            $bulan_num = array_search($request->bulan, $bulan);
+
     		$data = [
     			"tahun"=> $request->tahun,
     			"bulans"=> $request->bulan,
@@ -1627,7 +1667,9 @@ class UserController extends Controller
     			"kelurahan"=> $request->kelurahan,
     			"list" => $chunk,
     			"kprk" => $list[0]->kprk,
-    			"prefik" => $list[0]->prefik
+    			"prefik" => $list[0]->prefik,
+                "bulan_num" => $bulan_num,
+                "kode_kel" => $kode_kel
     		];
 
     	$pdf = PDF::chunkLoadView('<html-separator/>','layout.bast-new', $data, [], [
@@ -1667,7 +1709,7 @@ class UserController extends Controller
             if($request->jenis_penerima=='tambahan'){
                 $list = $list->where('path_ktp','B');
             }else if($request->jenis_penerima=='utama'){
-                $list = $list->where('path_ktp', NULL);
+                $list = $list->whereIn('path_ktp', ['',NULL]);
             }
 
     		$list = $list->orderBy("no_urut","asc")

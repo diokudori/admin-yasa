@@ -32,8 +32,14 @@
                   </div>
                   <div class="form-group">
                     <label for="item_code">Bulan Penyaluran</label>
-                    <input type="text" name="bulan" class="form-control" value="{{$bulans}}">
+                    <!-- <input type="text" name="bulan" class="form-control" value="{{$bulans}}"> -->
+                    <select name="bulan" id="bulan" class="form-control select2">
+                    	@foreach($bulan as $b)
+                    	<option value="{{$b}}" {{($bulans==$b)?'selected':''}}>{{$b}}</option>
+                    	@endforeach
+                      </select>
                   </div>
+                 
 
                   <div class="form-group">
                     <label for="item_code">Jenis Penerima</label>

@@ -23,7 +23,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::any('/login', function(Request $request){
-    $version = '5.1';
+    $version = '6';
     $data = $request->json()->all();
     // print_r($data);
     $password = \Hash::make($data['password']);
@@ -49,6 +49,17 @@ Route::any('/login', function(Request $request){
                 }else{
                     $user[0]->kolektif = false;
                 }
+                if($user[0]->db=='mysql'){
+
+                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->where('kprk', $user[0]->kprk)->get();
+
+                }else{
+                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->get();
+
+                }
+
+                $user[0]->server_ip = DB::table('servers')->where('name', $server[0]->server)->first()->ip;
+
 
                 if(!$pass){
                     $user = [];
@@ -232,7 +243,8 @@ Route::any('/data/list', function (Request $request) {
     ->where("kelurahan",$data['kel']);
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->first();
-    $belum_foto = $data->where('tgl_serah','')->first();
+    $tahap = strtolower($user->tahap)."_";
+    $belum_foto = $data->where($tahap.'tgl_serah','')->first();
     $sudah_foto = $total->total-$belum_foto->total;
 
     
@@ -251,7 +263,8 @@ Route::any('/offline/data/list', function (Request $request) {
     ->where("kelurahan",$data['kel']);
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->get();
-    $belum_foto = $data->where('tgl_serah','')->get();
+    $tahap = strtolower($user->tahap)."_";
+    $belum_foto = $data->where($tahap.'tgl_serah','')->get();
     $sudah_foto = $total->count()-$belum_foto->count();
 
     
@@ -345,7 +358,7 @@ Route::middleware('cors')->any('/data/update', function (Request $request) {
 
 Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request $request) {
     $res = $request->json()->all();
-    $version = '5.1';
+    $version = '6';
     // print_r($data);
     // return Response::JSON($data['prefik']);
     $user = DB::table('users')->where('id', $res['user_id'])->first();
@@ -372,8 +385,10 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
             return Response::JSON(["status"=>false, "tgl_serah"=>'']);
         }
 
+        // die();
+
         $filename = 'pbp_'.$data['prefik'].'.jpg';
-        $filepath = public_path().'/uploads/'.$folder.'/pbp/'.$filename;
+        $filepath = public_path().'/uploads/'.$user->tahap.'/pbp/'.$folder.'/'.$filename;
 
         $ifp = fopen( $filepath, 'wb' ); 
         if(isset($data['img_pbp']) && $data['img_pbp']!=''){
@@ -400,7 +415,7 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
                 // // $content = $response->getBody();
                 // $content = json_decode($response->getBody(), true);
                 // if($folder!='dev_papua_db'){
-                    return Redirect::to($endpoint."?filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']);
+                    // return Redirect::to($endpoint."?filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']);
                 // }
                 
 
@@ -414,19 +429,80 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
         // if($pbp_uploaded==1){
         //     $data['path_pbp'] = $content['file_url'];
         // }
+        $tahap = strtolower($user->tahap)."_";
+        $tambahan = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->first()->path_ktp;
+        if($tambahan=='B'){
+            if($data['status_penerima']=='4'){
+                $resp = DB::connection($user->db)->table($user->name)
+                ->where("kabupaten", $data['kabupaten'])
+                ->where("kecamatan", $data['kecamatan'])
+                ->where("kelurahan", $data['kelurahan'])
+                ->update(
+                [
+                "2023_nov_tgl_serah"=>$date, 
+                "2023_nov_transactor"=>$res['user_id'], 
+                "2023_nov_path_pbp"=>$data['path_pbp'], 
+                "2023_nov_status_penerima"=>$data['status_penerima'], 
+                "2023_nov_pbp_uploaded"=>$pbp_uploaded,
+                "2023_sep_tgl_serah"=>$date, 
+                "2023_sep_transactor"=>$res['user_id'], 
+                "2023_sep_path_pbp"=>$data['path_pbp'], 
+                "2023_sep_status_penerima"=>$data['status_penerima'], 
+                "2023_sep_pbp_uploaded"=>$pbp_uploaded,
+                "2023_okt_tgl_serah"=>$date, 
+                "2023_okt_transactor"=>$res['user_id'], 
+                "2023_okt_path_pbp"=>$data['path_pbp'], 
+                "2023_okt_status_penerima"=>$data['status_penerima'], 
+                "2023_okt_pbp_uploaded"=>$pbp_uploaded,
+                ]
+                );
+            }else{
 
-        if($data['status_penerima']=='4'){
-            $resp = DB::connection($user->db)->table($user->name)
-            ->where("kabupaten", $data['kabupaten'])
-            ->where("kecamatan", $data['kecamatan'])
-            ->where("kelurahan", $data['kelurahan'])
-            ->update(
-            ["tgl_serah"=>$date, "transactor"=>$res['user_id'], "path_ktp"=>$data['path_ktp'], "path_pbp"=>$data['path_pbp'], "status_penerima"=>$data['status_penerima'], "pbp_uploaded"=>$pbp_uploaded]);
-        }else{
+                $resp = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->update(
+                [
+                "2023_nov_tgl_serah"=>$date, 
+                "2023_nov_transactor"=>$res['user_id'], 
+                "2023_nov_path_pbp"=>$data['path_pbp'], 
+                "2023_nov_status_penerima"=>$data['status_penerima'], 
+                "2023_nov_pbp_uploaded"=>$pbp_uploaded,
+                "2023_sep_tgl_serah"=>$date, 
+                "2023_sep_transactor"=>$res['user_id'], 
+                "2023_sep_path_pbp"=>$data['path_pbp'], 
+                "2023_sep_status_penerima"=>$data['status_penerima'], 
+                "2023_sep_pbp_uploaded"=>$pbp_uploaded,
+                "2023_okt_tgl_serah"=>$date, 
+                "2023_okt_transactor"=>$res['user_id'], 
+                "2023_okt_path_pbp"=>$data['path_pbp'], 
+                "2023_okt_status_penerima"=>$data['status_penerima'], 
+                "2023_okt_pbp_uploaded"=>$pbp_uploaded,
+                ]
+                );
+            }
+        }else if($tambahan=='' || $tambahan==NULL){
+            if($data['status_penerima']=='4'){
+                $resp = DB::connection($user->db)->table($user->name)
+                ->where("kabupaten", $data['kabupaten'])
+                ->where("kecamatan", $data['kecamatan'])
+                ->where("kelurahan", $data['kelurahan'])
+                ->update(
+                [$tahap."tgl_serah"=>$date, 
+                $tahap."transactor"=>$res['user_id'], 
+                $tahap."path_pbp"=>$data['path_pbp'], 
+                $tahap."status_penerima"=>$data['status_penerima'], 
+                $tahap."pbp_uploaded"=>$pbp_uploaded]
+                );
+            }else{
 
-            $resp = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->update(
-            ["tgl_serah"=>$date, "transactor"=>$res['user_id'], "path_ktp"=>$data['path_ktp'], "path_pbp"=>$data['path_pbp'], "status_penerima"=>$data['status_penerima'], "pbp_uploaded"=>$pbp_uploaded]);
+                $resp = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->update(
+                [$tahap."tgl_serah"=>$date, 
+                $tahap."transactor"=>$res['user_id'], 
+                $tahap."path_pbp"=>$data['path_pbp'], 
+                $tahap."status_penerima"=>$data['status_penerima'], 
+                $tahap."pbp_uploaded"=>$pbp_uploaded]
+                );
+            }
         }
+        
 
         
     
@@ -491,9 +567,9 @@ Route::middleware('throttle:1000,1')->any('/data/update/new-tahap', function (Re
                 // $statusCode = $response->getStatusCode();
                 // // $content = $response->getBody();
                 // $content = json_decode($response->getBody(), true);
-                if($folder!='dev_papua_db'){
-                    return Redirect::to($endpoint."?filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']."&tahap=".$data['tahap']);
-                }
+                // if($folder!='dev_papua_db'){
+                //     return Redirect::to($endpoint."?filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']."&tahap=".$data['tahap']);
+                // }
                 
 
             }else{

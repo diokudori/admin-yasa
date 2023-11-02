@@ -1,21 +1,4 @@
-<?php 
 
-$bulan = array (
-		1 => 'Januari',
-		'Februari',
-		'Maret',
-		'April',
-		'Mei',
-		'Juni',
-		'Juli',
-		'Agustus',
-		'September',
-		'Oktober',
-		'November',
-		'Desember'
-	);
-
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -59,6 +42,7 @@ $bulan = array (
 		<td></td>
 		<td  style="width: 25%">
 			<img src="{{public_path('assets/images/logo-yat.jpeg')}}" style="height: 50px; margin-right: 0">
+			<p style="font-size: 14pt">{{$bulan_num}}{{$kode_kel}}</p>
 		</td>
 	</tr>
 	<tr>
