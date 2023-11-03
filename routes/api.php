@@ -52,7 +52,7 @@ Route::any('/login', function(Request $request){
                 }
                 if($user[0]->db=='mysql'){
 
-                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->where('kprk', $user[0]->kprk)->get();
+                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->where('kprk', $user[0]->name)->get();
 
                 }else{
                     $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->get();
