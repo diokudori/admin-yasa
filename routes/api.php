@@ -31,7 +31,9 @@ Route::any('/login', function(Request $request){
     $user = DB::table('users')->where('username',$data['username'])->get();
     if(isset($data['version'])){
         if($data['version']==$version){
+
             if($user->count()>0){
+
                 $pass = Hash::check($data['password'], $user[0]->password);
                 $batch = DB::table('settings')->where('name','batch_enabled')->first();
                 $batch_exp = explode(',',$batch->value);
@@ -52,13 +54,14 @@ Route::any('/login', function(Request $request){
                 }
                 if($user[0]->db=='mysql'){
 
-                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->where('kprk', $user[0]->name)->get();
+                    // $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->where('kprk', $user[0]->name)->get();
+                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('kprk', $user[0]->name)->get();
 
                 }else{
                     $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->get();
 
                 }
-
+               
                 $user[0]->server_ip = DB::table('servers')->where('name', $server[0]->server)->first()->ip;
                 $user[0]->tahap_name = $tahap_name[$user[0]->tahap];
 

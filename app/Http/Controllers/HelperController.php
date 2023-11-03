@@ -90,7 +90,13 @@ class HelperController extends Controller
         	do{
 		    	$skip = $counter*$limit;
 
-			    	$danom = DB::connection($user->db)->table($request->prefik)->select('*')->skip($skip)->limit($limit)->get();
+                    if(isset($request->kecamatan)){
+                        $danom = DB::connection($user->db)->table($request->prefik)->select('*')->where('kecamatan', $request->kecamatan)->skip($skip)->limit($limit)->get();
+                    }else{
+                        $danom = DB::connection($user->db)->table($request->prefik)->select('*')->skip($skip)->limit($limit)->get();
+                    }
+			    	
+                    
 			   
 			        foreach ($danom as $key => $value) {
 			            try{
