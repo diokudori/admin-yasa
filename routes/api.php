@@ -244,7 +244,7 @@ Route::any('/data/list', function (Request $request) {
     ->where("kelurahan",$data['kel']);
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->first();
-    $tahap = strtolower($user->tahap)."_";
+    $tahap = strtolower($request->tahap)."_";
     $belum_foto = $data->where($tahap.'tgl_serah','')->first();
     $sudah_foto = $total->total-$belum_foto->total;
 
@@ -264,7 +264,7 @@ Route::any('/offline/data/list', function (Request $request) {
     ->where("kelurahan",$data['kel']);
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->get();
-    $tahap = strtolower($user->tahap)."_";
+    $tahap = strtolower($request->tahap)."_";
     $belum_foto = $data->where($tahap.'tgl_serah','')->orderBy('no_urut','asc')->get();
     $sudah_foto = $total->count()-$belum_foto->count();
     $t = '2023';
@@ -461,7 +461,7 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
         // if($pbp_uploaded==1){
         //     $data['path_pbp'] = $content['file_url'];
         // }
-        $tahap = strtolower($user->tahap)."_";
+        $tahap = strtolower($request->tahap)."_";
         $tambahan = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->first()->path_ktp;
         if($tambahan=='B'){
             if($data['status_penerima']=='4'){
@@ -730,7 +730,7 @@ Route::any('/data/offline/list', function (Request $request) {
     // $data = $request->json()->all();
     $data = $request->all();
     $user = DB::table('users')->where('id', $data['user_id'])->first();
-    $tahap = strtolower($user->tahap)."_";
+    $tahap = strtolower($request->tahap)."_";
     $resp = DB::connection($user->db)->table($user->name)->select("*")->get();
 
     return Response::JSON($resp);
