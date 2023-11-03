@@ -24,6 +24,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::any('/login', function(Request $request){
     $version = '6';
+    $tahap_name = ['2023_NOV'=>'Tahap November 2023','2023_SEP'=>'Tahap September 2023','2023_OKT'=>'Tahap Oktober 2023'];
     $data = $request->json()->all();
     // print_r($data);
     $password = \Hash::make($data['password']);
@@ -59,7 +60,7 @@ Route::any('/login', function(Request $request){
                 }
 
                 $user[0]->server_ip = DB::table('servers')->where('name', $server[0]->server)->first()->ip;
-
+                $user[0]->tahap_name = $tahap_name[$user[0]->tahap];
 
                 if(!$pass){
                     $user = [];
