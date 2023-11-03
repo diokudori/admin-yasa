@@ -264,12 +264,43 @@ Route::any('/offline/data/list', function (Request $request) {
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->get();
     $tahap = strtolower($user->tahap)."_";
-    $belum_foto = $data->where($tahap.'tgl_serah','')->get();
+    $belum_foto = $data->where($tahap.'tgl_serah','')->orderBy('no_urut','asc')->get();
     $sudah_foto = $total->count()-$belum_foto->count();
+    $t = '2023';
 
-    
+    $total_new = [];
+    $belum_foto_new = [];
+    foreach ($total as $key => $value) {
+       $value = (array)$value;
+       array_push($total_new, $value);
 
-    $resp = ["total"=>$total->count(), "sudah_foto" => $sudah_foto, "belum_foto" => $belum_foto->count(), "data_belum"=>$belum_foto, "data_total"=>$total];
+    }
+
+     foreach ($belum_foto as $key => $value) {
+       $value = (array)$value;
+       array_push($belum_foto_new, $value);
+
+    }
+
+    foreach ($total_new as $key => $value) {
+       $total_new[$key]['tgl_serah'] = $value['2023_nov_tgl_serah']; 
+       $total_new[$key]['transactor'] = $value['2023_nov_transactor']; 
+       $total_new[$key]['path_pbp'] = $value['2023_nov_path_pbp']; 
+       $total_new[$key]['status_penerima'] = $value['2023_nov_status_penerima']; 
+       $total_new[$key]['pbp_uploaded'] = $value['2023_nov_pbp_uploaded']; 
+
+    }
+
+    foreach ($belum_foto_new as $key => $value) {
+       $belum_foto_new[$key]['tgl_serah'] = $value['2023_nov_tgl_serah']; 
+       $belum_foto_new[$key]['transactor'] = $value['2023_nov_transactor']; 
+       $belum_foto_new[$key]['path_pbp'] = $value['2023_nov_path_pbp']; 
+       $belum_foto_new[$key]['status_penerima'] = $value['2023_nov_status_penerima']; 
+       $belum_foto_new[$key]['pbp_uploaded'] = $value['2023_nov_pbp_uploaded']; 
+
+    }
+
+    $resp = ["total"=>$total->count(), "sudah_foto" => $sudah_foto, "belum_foto" => $belum_foto->count(), "data_belum"=>$belum_foto_new, "data_total"=>$total_new];
 
     return Response::JSON([$resp]);
 });
@@ -387,7 +418,7 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
 
         // die();
 
-        $filename = 'pbp_'.$data['prefik'].'.jpg';
+        $filename = 'pbp_'.$data['prefik'].'_'.$data['no_urut'].'_'.$data['status_penerima'].'.jpg';
         $filepath = public_path().'/uploads/'.$user->tahap.'/pbp/'.$folder.'/'.$filename;
 
         $ifp = fopen( $filepath, 'wb' ); 
@@ -698,6 +729,7 @@ Route::any('/data/offline/list', function (Request $request) {
     // $data = $request->json()->all();
     $data = $request->all();
     $user = DB::table('users')->where('id', $data['user_id'])->first();
+    $tahap = strtolower($user->tahap)."_";
     $resp = DB::connection($user->db)->table($user->name)->select("*")->get();
 
     return Response::JSON($resp);
