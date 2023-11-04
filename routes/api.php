@@ -840,6 +840,7 @@ Route::get('/user/hash', function(Request $request){
 
 Route::get('/migration/list', [HelperController::class,'migrationList']);
 Route::get('/migrate/{tahap}/{kprk}', [HelperController::class,'migratePbp']);
+Route::get('/migrate-tahap/{db}/{tahap}/{kprk}', [HelperController::class,'migrateTahap']);
 
 Route::get('realisasi/tahap/table/all', [HelperController::class,'realTahapTableAll']);
 Route::get('realisasi/tahap/table/total', [HelperController::class,'realTahapTableTotal']);

@@ -267,6 +267,11 @@
     var kel = '';
     var data_kab = [];
 
+    var q_total = 0;
+    var pbp_total = 0;
+    var persen_pbp_total = 0;
+    var sisa_total = 0;
+    var persen_sisa_total = 0;
 
     var detil_nama = 'Kota/Kab';
 
@@ -327,32 +332,32 @@ $('.overlay').show();
         });
 
 
-        // $.ajax({
-        //   type: 'GET',
-        //   url: "realisasi/tahap/table/total",
-        //   data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
-        // }).then(function (data) {
-        //   console.log(data);
-        //   var no = 0;
-        //       var str = '';
+        $.ajax({
+          type: 'GET',
+          url: "<?=url('realisasi/tahap/table/total')?>",
+          data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), pbp: pbp.val()}
+        }).then(function (data) {
+          console.log(data);
+          var no = 0;
+              var str = '';
              
-        //         no += 1;
-        //         str += '<tr>';
-        //         str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
-        //         // str += '<td>'+data.transporter+'</td>';
-        //         // str += '<td>'+data.persen_transporter+'%</td>';
-        //         str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
-        //         str += '<td>'+data.persen_pbp+'%</td>';
-        //         str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
-        //         str += '<td>'+data.persen_sisa+'%</td>';
-        //         str += '</tr>';
-        //         $('#total-table-real').html(str);
-        //         $('.overlay-total').hide();
-        //                 //dataAll.push(data[i][j]);
+                no += 1;
+                str += '<tr>';
+                str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
+                // str += '<td>'+data.transporter+'</td>';
+                // str += '<td>'+data.persen_transporter+'%</td>';
+                str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
+                str += '<td>'+data.persen_pbp+'%</td>';
+                str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
+                str += '<td>'+data.persen_sisa+'%</td>';
+                str += '</tr>';
+                $('#total-table-real').html(str);
+                $('.overlay-total').hide();
+                        //dataAll.push(data[i][j]);
               
               
             
-        // });
+        });
   }
 });
 
@@ -363,7 +368,8 @@ $('table.table-real').on('click', 'a.btn-name', function(){
 	$('.overlay').show();
 	var id = $(this).data('id');
 	var val = $(this).data('val');
-	refreshData(id,val);
+  var ip = $(this).data('ip');
+	refreshData(id,val,ip);
 
 });
 
@@ -371,26 +377,28 @@ $('ol.breadcrumb').on('click', 'a.btn-breadcrumb', function(){
 	$('.overlay').show();
 	var id = $(this).data('id');
 	var val = $(this).data('val');
-
-	refreshData(id,val);
+  var ip = $(this).data('ip');
+  refreshData(id,val,ip);
 
 });
 
 function getDataKabAll(param, no, max){
-
-  param.db = prov.val();
+  if(param.ip==null){
+    getDataKabAll(data_kab[no], no+1, max);
+  }else{
+     param.db = prov.val();
   param.tahap = tahap.val();
   param.pbp = pbp.val();
    $.ajax({
           type: 'GET',
-          url: "<?=url('realisasi/tahap/table/all/kab')?>",
+          url: "http://"+param.ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab",
           data: param
         }).then(function (data) {
           // if(kab.val()!=''){
           //   table_real.destroy();
           // }
           $('.breadcrumb').html('');
-          $('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="db" data-val="'+prov.val()+'">'+$('#provinsi option:selected').text()+'</a></li>');
+          $('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="db" data-val="'+prov.val()+'" data-ip="'+param.ip+'">'+$('#provinsi option:selected').text()+'</a></li>');
           $('.breadcrumb').show();
           console.log(data);
          
@@ -414,7 +422,7 @@ function getDataKabAll(param, no, max){
          
                     str += '<tr>';
                     str += '<td>'+no+'</td>';
-                    str += '<td><a href="#" class="btn-name" data-val="'+data[i].nama+'" data-id="'+id+'">'+data[i].nama+'</a></td>';
+                    str += '<td><a href="#" class="btn-name" data-val="'+data[i].nama+'" data-id="'+id+'" data-ip="'+param.ip+'">'+data[i].nama+'</a></td>';
                     str += '<td><span class="badge bg-info">'+data[i].kuantum+'</span></td>';
                     // str += '<td>'+data[i].transporter+'</td>';
                     // str += '<td>'+data[i].persen_transporter+'%</td>';
@@ -423,21 +431,42 @@ function getDataKabAll(param, no, max){
                     str += '<td><span class="badge bg-danger ">'+data[i].sisa+'</span></td>';
                     str += '<td>'+data[i].persen_sisa+'%</td>';
                     str += '</tr>';
-          
+            
+                // q_total += data[i].kuantum_r;
+                // pbp_total += data[i].pbp_r;
+                // persen_pbp_total += data[i].persen_pbp;
+                // sisa_total += data[i].sisa_r;
+                // persen_sisa_total += data[i].persen_sisa;
               
               
             }
+            // var str2 = '';
+            //  str2 += '<tr>';
+            //     str2 += '<td><span class="badge bg-info">'+q_total+'</span></td>';
+            //     str2 += '<td><span class="badge bg-success ">'+pbp_total+'</span></td>';
+            //     str2 += '<td>'+persen_pbp_total+'%</td>';
+            //     str2 += '<td><span class="badge bg-danger ">'+sisa_total+'</span></td>';
+            //     str2 += '<td>'+persen_sisa_total+'%</td>';
+            //     str2 += '</tr>';
+                // $('#total-table-real').html(str2);
 
             $('#table-real').append(str);
+
             if(no==max){
               $('.overlay-real').hide();
+            }else{
+              getDataKabAll(data_kab[no], no+1, max);
             }
+
+
             
         });
+  }
+ 
 
 }
 
-function refreshData(id, val){
+function refreshData(id, val, ip){
 	var db = prov.val();
 	$('#thead-person').hide();
      	$('#thead-counter').show();
@@ -490,7 +519,7 @@ function refreshData(id, val){
          
 	$.ajax({
           type: 'GET',
-          url: "<?=url('realisasi/tahap/table/all')?>",
+          url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab",
           data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: tgl_serah, pbp: pbp.val()}
         }).then(function (data) {
           // if(kab.val()!=''){
@@ -523,7 +552,7 @@ function refreshData(id, val){
                     no += 1;
                     str += '<tr>';
                     str += '<td>'+no+'</td>';
-                    str += '<td><a href="#" class="btn-name" data-val="'+data[i].nama+'" data-id="'+id+'">'+data[i].nama+'</a></td>';
+                    str += '<td><a href="#" class="btn-name" data-val="'+data[i].nama+'" data-id="'+id+'" data-ip="'+ip+'">'+data[i].nama+'</a></td>';
                     str += '<td><span class="badge bg-info">'+data[i].kuantum+'</span></td>';
                     // str += '<td>'+data[i].transporter+'</td>';
                     // str += '<td>'+data[i].persen_transporter+'%</td>';
@@ -568,7 +597,7 @@ function refreshData(id, val){
 
         $.ajax({
           type: 'GET',
-          url: "<?=url('realisasi/tahap/table/total')?>",
+          url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/total/kab",
           data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
         }).then(function (data) {
           console.log(data);

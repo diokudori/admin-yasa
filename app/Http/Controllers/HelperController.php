@@ -348,6 +348,25 @@ WHERE tgl_serah !='';";
 
     }
 
+    public function migrateTahap($db, $tahap, $kprk){
+        $resp = DB::connection($db)->table($tahap)->where('kprk',$kprk)->get();
+        $kodetahap = strtolower($tahap)."_";
+        foreach ($resp as $key => $value) {
+            DB::table($kprk)->where('prefik',$value->prefik)->update(
+            [
+                $kodetahap.'tgl_serah'=>$value->tgl_serah, 
+                $kodetahap.'transactor'=>$value->transactor, 
+                $kodetahap.'path_pbp'=>$value->path_pbp, 
+                $kodetahap.'tgl_upload'=>$value->tgl_upload, 
+                $kodetahap.'status_penerima'=>$value->status_penerima, 
+                $kodetahap.'pbp_uploaded'=>$value->pbp_uploaded
+            ]
+            );
+        }
+
+        return Response::JSON(['status'=>true]);
+    }
+
 
     public function realTahapTableTotal(Request $request){
         // $db = DB::connection($request->db);
@@ -625,7 +644,7 @@ WHERE tgl_serah !='';";
                         }
                         $pbp_total = $pbp_total->first()->total;
 
-                         $rencana_salur_b = DB::connection($request->db)->table($value2->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$value->kecamatan)->where('path_ktp','B')->first()->total;
+                         $rencana_salur_b = DB::connection($request->db)->table($value->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$value->kecamatan)->where('path_ktp','B')->first()->total;
                         if($request->pbp == 'utama'){
                             $rencana_salur = $rencana_salur - $rencana_salur_b;
                         }else if($request->pbp == 'tambahan'){
@@ -705,7 +724,7 @@ WHERE tgl_serah !='';";
                         }
                         $pbp_total = $pbp_total->first()->total;
 
-                        $rencana_salur_b = DB::connection($request->db)->table($value->kode_map)->selectRaw('count(*)as total')->where('kabupaten', $request->kab)->where('kecamatan',$value->kecamatan)->where('path_ktp','B')->first()->total;
+                        $rencana_salur_b = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten', $request->kab)->where('kecamatan',$value->kecamatan)->where('path_ktp','B')->first()->total;
                         if($request->pbp == 'utama'){
                             $rencana_salur = $rencana_salur - $rencana_salur_b;
                         }else if($request->pbp == 'tambahan'){
@@ -763,7 +782,7 @@ WHERE tgl_serah !='';";
                         }
                         $pbp_total = $pbp_total->first()->total;
 
-                        $rencana_salur_b = DB::connection($request->db)->table($value->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$request->kec)->where('path_ktp','B')->first()->total;
+                        $rencana_salur_b = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$request->kec)->where('path_ktp','B')->first()->total;
                         if($request->pbp == 'utama'){
                             $rencana_salur = $rencana_salur - $rencana_salur_b;
                         }else if($request->pbp == 'tambahan'){
@@ -871,6 +890,10 @@ WHERE tgl_serah !='';";
                         $rencana_salur_b = DB::connection($request->db)->table($value2->kode_map)->selectRaw('count(*)as total')->where('kecamatan',$value2->kecamatan)->where('path_ktp','B')->first()->total;
                         $kecamatan = DB::connection($request->db)->table($value2->kode_map)->select('prefik')->where('kecamatan',$value2->kecamatan)->get()->pluck('prefik');
                         // $pbp_total = DB::connection($request->db)->table($value2->kode_map)->selectRaw('count(*)as total, prefik')->whereIn('prefik', $tahap)->where('kecamatan',$value2->kecamatan)->first()->total;
+                         // $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
+                        // ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
+                        $tahap = strtolower($request->tahap)."_";
+                        // $pbp_total = DB::connection($request->db)->table($value2->kode_map)->selectRaw("count(*)as total")->where('kecamatan', $value2->kecamatan)->where('t.kprk', $value2->kode_map)->where($tahap.'tgl_serah','=','');
                          $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
                         ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
                         if($request->pbp == 'utama'){
