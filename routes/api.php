@@ -261,9 +261,21 @@ Route::any('/data/list', function (Request $request) {
 Route::any('/offline/data/list', function (Request $request) {
     // die();
     $req = $request->json()->all();
+    // print_r($req);
+
+    if(sizeof($req)==0){
+        $req = $request->all();
+    }
     $tahap = strtolower($req['tahap'])."_";
     $user = DB::table('users')->where('id', $req['user_id'])->first();
-    $data = DB::connection($user->db)->table($user->name)->select('*')
+    $selectarr = ['id','no_urut','nama','provinsi','kabupaten','kecamatan','kelurahan','alamat','rw','rt','umur','kprk','prefik'];
+    $tahaparr = ['tgl_serah','transactor','path_ktp','path_pbp','tgl_upload','status_penerima', 'pbp_uploaded'];
+
+    foreach ($tahaparr as $key => $value) {
+        array_push($selectarr, $tahap.$value.' as '.$value);
+    }
+
+    $data = DB::connection($user->db)->table($user->name)->select($selectarr)
     ->where("kabupaten",$req['kab'])
     ->where("kecamatan",$req['kec'])
     ->where("kelurahan",$req['kel']);
@@ -276,35 +288,35 @@ Route::any('/offline/data/list', function (Request $request) {
 
     $total_new = [];
     $belum_foto_new = [];
-    foreach ($total as $key => $value) {
-       $value = (array)$value;
-       array_push($total_new, $value);
+    // foreach ($total as $key => $value) {
+    //    $value = (array)$value;
+    //    array_push($total_new, $value);
 
-    }
+    // }
 
-     foreach ($belum_foto as $key => $value) {
-       $value = (array)$value;
-       array_push($belum_foto_new, $value);
+    //  foreach ($belum_foto as $key => $value) {
+    //    $value = (array)$value;
+    //    array_push($belum_foto_new, $value);
 
-    }
+    // }
 
-    foreach ($total_new as $key => $value) {
-       $total_new[$key]['tgl_serah'] = $value['2023_nov_tgl_serah']; 
-       $total_new[$key]['transactor'] = $value['2023_nov_transactor']; 
-       $total_new[$key]['path_pbp'] = $value['2023_nov_path_pbp']; 
-       $total_new[$key]['status_penerima'] = $value['2023_nov_status_penerima']; 
-       $total_new[$key]['pbp_uploaded'] = $value['2023_nov_pbp_uploaded']; 
+    // foreach ($total_new as $key => $value) {
+    //    $total_new[$key]['tgl_serah'] = $value['2023_nov_tgl_serah']; 
+    //    $total_new[$key]['transactor'] = $value['2023_nov_transactor']; 
+    //    $total_new[$key]['path_pbp'] = $value['2023_nov_path_pbp']; 
+    //    $total_new[$key]['status_penerima'] = $value['2023_nov_status_penerima']; 
+    //    $total_new[$key]['pbp_uploaded'] = $value['2023_nov_pbp_uploaded']; 
 
-    }
+    // }
 
-    foreach ($belum_foto_new as $key => $value) {
-       $belum_foto_new[$key]['tgl_serah'] = $value['2023_nov_tgl_serah']; 
-       $belum_foto_new[$key]['transactor'] = $value['2023_nov_transactor']; 
-       $belum_foto_new[$key]['path_pbp'] = $value['2023_nov_path_pbp']; 
-       $belum_foto_new[$key]['status_penerima'] = $value['2023_nov_status_penerima']; 
-       $belum_foto_new[$key]['pbp_uploaded'] = $value['2023_nov_pbp_uploaded']; 
+    // foreach ($belum_foto_new as $key => $value) {
+    //    $belum_foto_new[$key]['tgl_serah'] = $value['2023_nov_tgl_serah']; 
+    //    $belum_foto_new[$key]['transactor'] = $value['2023_nov_transactor']; 
+    //    $belum_foto_new[$key]['path_pbp'] = $value['2023_nov_path_pbp']; 
+    //    $belum_foto_new[$key]['status_penerima'] = $value['2023_nov_status_penerima']; 
+    //    $belum_foto_new[$key]['pbp_uploaded'] = $value['2023_nov_pbp_uploaded']; 
 
-    }
+    // }
 
     $resp = ["total"=>$total->count(), "sudah_foto" => $sudah_foto, "belum_foto" => $belum_foto->count(), "data_belum"=>$belum_foto_new, "data_total"=>$total_new];
 
@@ -313,6 +325,9 @@ Route::any('/offline/data/list', function (Request $request) {
 
 Route::any('/data/nomor', function (Request $request) {
     $data = $request->json()->all();
+    if(sizeof($data)==0){
+        $data = $request->all();
+    }
     if($data['nomor']!=""){
         $user = DB::table('users')->where('id', $data['user_id'])->first();
 
@@ -710,6 +725,9 @@ Route::any('/data/urutkan', function (Request $request) {
 
 Route::any('/data/offline/wilayah', function (Request $request) {
     $data = $request->json()->all();
+    if(sizeof($data)==0){
+        $data = $request->all();
+    }
     // $data = $request->all();
     $user = DB::table('users')->where('id', $data['user_id'])->first();
     $kab = DB::connection($user->db)->table($user->name)->select("kabupaten")->groupBy("kabupaten")->get();
