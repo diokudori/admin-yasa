@@ -286,8 +286,8 @@ Route::any('/offline/data/list', function (Request $request) {
     $sudah_foto = $total->count()-$belum_foto->count();
     $t = '2023';
 
-    $total_new = [];
-    $belum_foto_new = [];
+    // $total_new = [];
+    // $belum_foto_new = [];
     // foreach ($total as $key => $value) {
     //    $value = (array)$value;
     //    array_push($total_new, $value);
@@ -318,7 +318,7 @@ Route::any('/offline/data/list', function (Request $request) {
 
     // }
 
-    $resp = ["total"=>$total->count(), "sudah_foto" => $sudah_foto, "belum_foto" => $belum_foto->count(), "data_belum"=>$belum_foto_new, "data_total"=>$total_new];
+    $resp = ["total"=>$total->count(), "sudah_foto" => $sudah_foto, "belum_foto" => $belum_foto->count(), "data_belum"=>$belum_foto, "data_total"=>$total];
 
     return Response::JSON([$resp]);
 });
