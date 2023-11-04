@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -260,13 +259,14 @@ Route::any('/data/list', function (Request $request) {
 });
 
 Route::any('/offline/data/list', function (Request $request) {
-    $data = $request->json()->all();
-    $tahap = strtolower($data['tahap'])."_";
-    $user = DB::table('users')->where('id', $data['user_id'])->first();
+    // die();
+    $req = $request->json()->all();
+    $tahap = strtolower($req['tahap'])."_";
+    $user = DB::table('users')->where('id', $req['user_id'])->first();
     $data = DB::connection($user->db)->table($user->name)->select('*')
-    ->where("kabupaten",$data['kab'])
-    ->where("kecamatan",$data['kec'])
-    ->where("kelurahan",$data['kel']);
+    ->where("kabupaten",$req['kab'])
+    ->where("kecamatan",$req['kec'])
+    ->where("kelurahan",$req['kel']);
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->get();
     
