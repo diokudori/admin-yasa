@@ -1350,7 +1350,10 @@ class UserController extends Controller
 
     public function realTahapTableKabList(Request $request){
         if($request->db == 'mysql'){
-            $users = DB::table('data_map')->select('kabupaten','kode_kab')->groupBy('kabupaten')->get();
+            $users = DB::table('data_map as dm')->select('dm.kabupaten','dm.kode_kab','dm.kode_map','s.ip')
+            ->leftJoin('server_mapping as sm','dm.kode_map','=','sm.kprk')
+            ->leftJoin('servers as s','sm.server','=','s.name')
+            ->groupBy('kabupaten')->get();
             
         }else{
             $users = DB::table('users')->selectRaw('name as kode_map, email as kabupaten, id as kode_kab')->where('db', $request->db)->where('role','!=','0')->groupBy('name')->get();
@@ -1431,7 +1434,27 @@ class UserController extends Controller
     }
 
     public function realTahapTableAllKab(Request $request){
-   
+        $url = 'http://'.$request->ip.'/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab';
+        $curlPost = http_build_query($request->all()); 
+            $ch = curl_init();         
+            curl_setopt($ch, CURLOPT_URL, $url);         
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+            curl_setopt($ch, CURLOPT_POST, 1);         
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);     
+            $data = curl_exec($ch); 
+            // $data = json_decode(curl_exec($ch), true); 
+            $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+            if ($http_code != 200) { 
+                $error_msg = 'Failed to receieve access token'; 
+                if (curl_errno($ch)) { 
+                    $error_msg = curl_error($ch); 
+                    return Response::JSON(['status'=>false,'msg'=>$error_msg]);
+                } 
+            }
+
+            return Response::JSON($data);
+
         
          $kuantum = 0;
                 $transporter = 0;

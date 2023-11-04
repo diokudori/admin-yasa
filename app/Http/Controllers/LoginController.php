@@ -13,7 +13,12 @@ class LoginController extends Controller
     	if(Auth::attempt(['username' => $request->name, 'password' => $request->password])){
     		$user = Auth::user();
     		session('db',$user->db);
-			return redirect('/home');
+    		if(Auth::user()->role==0){
+    			return redirect('/home/realisasi/tahap');
+    		}else{
+    			return redirect('/home');
+    		}
+			
 		}else{
 			return Redirect::back()->withErrors(['User not found']);
 		}

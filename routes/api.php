@@ -22,7 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::any('/login', function(Request $request){
-    $version = '6';
+    $version = '6.1';
     $tahap_name = ['2023_NOV'=>'Tahap November 2023','2023_SEP'=>'Tahap September 2023','2023_OKT'=>'Tahap Oktober 2023'];
     $data = $request->json()->all();
     // print_r($data);
@@ -410,7 +410,7 @@ Route::middleware('cors')->any('/data/update', function (Request $request) {
 
 Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request $request) {
     $res = $request->json()->all();
-    $version = '6';
+    $version = '6.1';
     // print_r($data);
     // return Response::JSON($data['prefik']);
     $user = DB::table('users')->where('id', $res['user_id'])->first();
@@ -565,7 +565,7 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
 
 Route::middleware('throttle:1000,1')->any('/data/update/new-tahap', function (Request $request) {
     $res = $request->json()->all();
-    $version = '6';
+    $version = '6.1';
     // print_r($data);
     // return Response::JSON($data['prefik']);
     $user = DB::table('users')->where('id', $res['user_id'])->first();
@@ -841,7 +841,11 @@ Route::get('/user/hash', function(Request $request){
 Route::get('/migration/list', [HelperController::class,'migrationList']);
 Route::get('/migrate/{tahap}/{kprk}', [HelperController::class,'migratePbp']);
 
+Route::get('realisasi/tahap/table/all', [HelperController::class,'realTahapTableAll']);
+Route::get('realisasi/tahap/table/total', [HelperController::class,'realTahapTableTotal']);
 
+Route::get('realisasi/tahap/table/all/kab', [HelperController::class,'realTahapTableAllKab']);
+Route::get('realisasi/tahap/table/total/kab', [HelperController::class,'realTahapTableTotalKab']);
 
 
 

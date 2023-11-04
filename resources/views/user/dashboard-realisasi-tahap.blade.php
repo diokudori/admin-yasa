@@ -265,6 +265,7 @@
     var kab = '';
     var kec = '';
     var kel = '';
+    var data_kab = [];
 
 
     var detil_nama = 'Kota/Kab';
@@ -311,46 +312,47 @@ $('.overlay').show();
           console.log(data);
             var no = 0;
              $('#table-real').html('');
-            for(var i in data){
+             data_kab = data;
+            // for(var i in data){
               
          
-                    no += 1;
-                    getDataKabAll(data[i], no, data.length);
+                    // no += 1;
+                    getDataKabAll(data_kab[0], 1, data.length);
           
               
               
-            }
+            // }
 
             
         });
 
 
-        $.ajax({
-          type: 'GET',
-          url: "<?=url('realisasi/tahap/table/total')?>",
-          data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
-        }).then(function (data) {
-          console.log(data);
-          var no = 0;
-              var str = '';
+        // $.ajax({
+        //   type: 'GET',
+        //   url: "realisasi/tahap/table/total",
+        //   data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
+        // }).then(function (data) {
+        //   console.log(data);
+        //   var no = 0;
+        //       var str = '';
              
-                no += 1;
-                str += '<tr>';
-                str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
-                // str += '<td>'+data.transporter+'</td>';
-                // str += '<td>'+data.persen_transporter+'%</td>';
-                str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
-                str += '<td>'+data.persen_pbp+'%</td>';
-                str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
-                str += '<td>'+data.persen_sisa+'%</td>';
-                str += '</tr>';
-                $('#total-table-real').html(str);
-                $('.overlay-total').hide();
-                        //dataAll.push(data[i][j]);
+        //         no += 1;
+        //         str += '<tr>';
+        //         str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
+        //         // str += '<td>'+data.transporter+'</td>';
+        //         // str += '<td>'+data.persen_transporter+'%</td>';
+        //         str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
+        //         str += '<td>'+data.persen_pbp+'%</td>';
+        //         str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
+        //         str += '<td>'+data.persen_sisa+'%</td>';
+        //         str += '</tr>';
+        //         $('#total-table-real').html(str);
+        //         $('.overlay-total').hide();
+        //                 //dataAll.push(data[i][j]);
               
               
             
-        });
+        // });
   }
 });
 
