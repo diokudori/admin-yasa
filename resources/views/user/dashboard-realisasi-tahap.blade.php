@@ -130,8 +130,9 @@
                 <h3 class="card-title">Detil Data</h3>
                 <div class="form-group" id="form-option-real">
                   <select class="form-control" name="tgl_serah">
-                    <option value="true">Sudah Realisasi</option>
+
                     <option value="false">Belum Realisasi</option>
+                    <option value="true">Sudah Realisasi</option>
                   </select>
                 </div>
               </div>
@@ -272,6 +273,7 @@
     var persen_pbp_total = 0;
     var sisa_total = 0;
     var persen_sisa_total = 0;
+    var counter_kab = 0;
 
     var detil_nama = 'Kota/Kab';
 
@@ -300,7 +302,12 @@ if(prov.val()==''){
   });
 
 pbp.on("change", function(){
-
+q_total = 0;
+    pbp_total = 0;
+    persen_pbp_total = 0;
+    sisa_total = 0;
+    persen_sisa_total = 0;
+     counter_kab = 0;
 $('.overlay').show();
   if(pbp.val()==''){
       $('#show-tables').attr('disabled','');
@@ -316,53 +323,55 @@ $('.overlay').show();
         
           console.log(data);
             var no = 0;
+            counter_kab = no;
              $('#table-real').html('');
              data_kab = data;
-            // for(var i in data){
+            for(var i in data){
               
          
-                    // no += 1;
-                    getDataKabAll(data_kab[0], 1, data.length);
+                    no += 1;
+                    // getDataKabAll(data_kab[0], 1, data.length);
+                    getDataKabAll(data_kab[i], no, data.length);
           
               
               
-            // }
+            }
 
             
         });
 
 
-        $.ajax({
-          type: 'GET',
-          url: "<?=url('realisasi/tahap/table/total')?>",
-          data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), pbp: pbp.val()}
-        }).then(function (data) {
-          console.log(data);
-          var no = 0;
-              var str = '';
+        // $.ajax({
+        //   type: 'GET',
+        //   url: "realisasi/tahap/table/total",
+        //   data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), pbp: pbp.val()}
+        // }).then(function (data) {
+        //   console.log(data);
+        //   var no = 0;
+        //       var str = '';
              
-                no += 1;
-                str += '<tr>';
-                str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
-                // str += '<td>'+data.transporter+'</td>';
-                // str += '<td>'+data.persen_transporter+'%</td>';
-                str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
-                str += '<td>'+data.persen_pbp+'%</td>';
-                str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
-                str += '<td>'+data.persen_sisa+'%</td>';
-                str += '</tr>';
-                $('#total-table-real').html(str);
-                $('.overlay-total').hide();
-                        //dataAll.push(data[i][j]);
+        //         no += 1;
+        //         str += '<tr>';
+        //         str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
+        //         // str += '<td>'+data.transporter+'</td>';
+        //         // str += '<td>'+data.persen_transporter+'%</td>';
+        //         str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
+        //         str += '<td>'+data.persen_pbp+'%</td>';
+        //         str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
+        //         str += '<td>'+data.persen_sisa+'%</td>';
+        //         str += '</tr>';
+        //         $('#total-table-real').html(str);
+        //         $('.overlay-total').hide();
+        //                 //dataAll.push(data[i][j]);
               
               
             
-        });
+        // });
   }
 });
 
 $('select[name=tgl_serah]').on("change", function(){
-    refreshData('kel',null);
+    refreshData('kel',null,'');
 });
 $('table.table-real').on('click', 'a.btn-name', function(){
 	$('.overlay').show();
@@ -392,8 +401,10 @@ function getDataKabAll(param, no, max){
    $.ajax({
           type: 'GET',
           url: "http://"+param.ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab",
+          // url: "realisasi/tahap/table/all/kab",
           data: param
         }).then(function (data) {
+          counter_kab += 1;
           // if(kab.val()!=''){
           //   table_real.destroy();
           // }
@@ -421,7 +432,7 @@ function getDataKabAll(param, no, max){
               
          
                     str += '<tr>';
-                    str += '<td>'+no+'</td>';
+                    str += '<td>'+counter_kab+'</td>';
                     str += '<td><a href="#" class="btn-name" data-val="'+data[i].nama+'" data-id="'+id+'" data-ip="'+param.ip+'">'+data[i].nama+'</a></td>';
                     str += '<td><span class="badge bg-info">'+data[i].kuantum+'</span></td>';
                     // str += '<td>'+data[i].transporter+'</td>';
@@ -432,30 +443,33 @@ function getDataKabAll(param, no, max){
                     str += '<td>'+data[i].persen_sisa+'%</td>';
                     str += '</tr>';
             
-                // q_total += data[i].kuantum_r;
-                // pbp_total += data[i].pbp_r;
-                // persen_pbp_total += data[i].persen_pbp;
-                // sisa_total += data[i].sisa_r;
-                // persen_sisa_total += data[i].persen_sisa;
+                q_total += parseInt(data[i].kuantum_r);
+                pbp_total += parseInt(data[i].pbp_r);
+                // persen_pbp_total += parseFloat(data[i].persen_pbp);
+                sisa_total += parseInt(data[i].sisa_r);
+                // persen_sisa_total += parseFloat(data[i].persen_sisa);
               
               
             }
-            // var str2 = '';
-            //  str2 += '<tr>';
-            //     str2 += '<td><span class="badge bg-info">'+q_total+'</span></td>';
-            //     str2 += '<td><span class="badge bg-success ">'+pbp_total+'</span></td>';
-            //     str2 += '<td>'+persen_pbp_total+'%</td>';
-            //     str2 += '<td><span class="badge bg-danger ">'+sisa_total+'</span></td>';
-            //     str2 += '<td>'+persen_sisa_total+'%</td>';
-            //     str2 += '</tr>';
-                // $('#total-table-real').html(str2);
+            var str2 = '';
+            persen_pbp_total = (pbp_total/q_total)*100;
+            persen_sisa_total = (sisa_total/q_total)*100;
+             str2 += '<tr>';
+                str2 += '<td><span class="badge bg-info">'+q_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");+'</span></td>';
+                str2 += '<td><span class="badge bg-success ">'+pbp_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");+'</span></td>';
+                str2 += '<td>'+(Math.round(persen_pbp_total * 100) / 100).toFixed(2)+'%</td>';
+                str2 += '<td><span class="badge bg-danger ">'+sisa_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");+'</span></td>';
+                str2 += '<td>'+(Math.round(persen_sisa_total * 100) / 100).toFixed(2)+'%</td>';
+                str2 += '</tr>';
+                $('#total-table-real').html(str2);
 
             $('#table-real').append(str);
 
-            if(no==max){
+            if(counter_kab==max){
               $('.overlay-real').hide();
+              $('.overlay-total').hide();
             }else{
-              getDataKabAll(data_kab[no], no+1, max);
+              // getDataKabAll(data_kab[no], no+1, max);
             }
 
 
@@ -474,6 +488,8 @@ function refreshData(id, val, ip){
        $('.real-col').show();
    var tgl_serah = $('select[name=tgl_serah]').val();
    console.log(tgl_serah);
+   $('.overlay').show();
+   $('.overlay').show();
 	if(id=='db'){
 		db = val;
 		kab = '';
@@ -495,11 +511,11 @@ function refreshData(id, val, ip){
 		$('#thead-counter').hide();
     $('#thead-person').show();
     $('#form-option-real').show();
-    if(tgl_serah=='true'){
-              $('.real-col').show();
-            }else{
-               $('.real-col').hide();
-            }
+    // if(tgl_serah=='true'){
+    //           $('.real-col').show();
+    //         }else{
+    //            $('.real-col').hide();
+    //         }
 	}
 
 
@@ -519,7 +535,8 @@ function refreshData(id, val, ip){
          
 	$.ajax({
           type: 'GET',
-          url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab",
+          // url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab",
+          url: "<?=url('realisasi/tahap/table/all')?>",
           data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: tgl_serah, pbp: pbp.val()}
         }).then(function (data) {
           // if(kab.val()!=''){
@@ -545,7 +562,11 @@ function refreshData(id, val, ip){
           		}
           	}
           }
-
+             if(tgl_serah=='true'){
+              $('.real-col').show();
+            }else{
+               $('.real-col').hide();
+            }
             for(var i in data){
               
                 if(kel==''){
@@ -582,11 +603,7 @@ function refreshData(id, val, ip){
               
             }
 
-            if(tgl_serah=='true'){
-              $('.real-col').show();
-            }else{
-               $('.real-col').hide();
-            }
+           
 
             $('#table-real').html(str);
             $('.overlay-real').hide();
@@ -597,7 +614,8 @@ function refreshData(id, val, ip){
 
         $.ajax({
           type: 'GET',
-          url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/total/kab",
+          // url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/total/kab",
+          url: "<?=url('realisasi/tahap/table/total')?>",
           data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
         }).then(function (data) {
           console.log(data);
