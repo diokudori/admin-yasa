@@ -440,7 +440,7 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
         // die();
 
         $filename = 'pbp_'.$data['prefik'].'_'.$data['no_urut'].'_'.$data['status_penerima'].'.jpg';
-        $filepath = public_path().'/uploads/'.$data['tahap'].'/pbp/'.$folder.'/'.$filename;
+        $filepath = public_path().'/uploads/'.$res['tahap'].'/pbp/'.$folder.'/'.$filename;
 
         $ifp = fopen( $filepath, 'wb' ); 
         if(isset($data['img_pbp']) && $data['img_pbp']!=''){
