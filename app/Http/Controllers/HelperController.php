@@ -909,7 +909,7 @@ WHERE tgl_serah !='';";
 
                         // $pbp_total = $pbp_total->where('t.kprk', $value2->kode_map)
                         // ->where('kecamatan', $value2->kecamatan)
-                        ->first()->total;
+                        $pbp_total = $pbp_total->first()->total;
 
                         // $pbp_total = 0;
                         if($request->pbp == 'utama'){
