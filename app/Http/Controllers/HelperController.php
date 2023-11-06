@@ -897,7 +897,6 @@ WHERE tgl_serah !='';";
                         ->table($value2->kode_map)
                         ->selectRaw("count(*)as total")
                         ->where('kecamatan', $value2->kecamatan)
-                        ->where('t.kprk', $value2->kode_map)
                         ->where($tahap.'tgl_serah','=','');
                          // $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
                         // ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
