@@ -893,17 +893,22 @@ WHERE tgl_serah !='';";
                          // $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
                         // ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
                         $tahap = strtolower($request->tahap)."_";
-                        // $pbp_total = DB::connection($request->db)->table($value2->kode_map)->selectRaw("count(*)as total")->where('kecamatan', $value2->kecamatan)->where('t.kprk', $value2->kode_map)->where($tahap.'tgl_serah','=','');
-                         $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
-                        ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
+                        $pbp_total = DB::connection($request->db)
+                        ->table($value2->kode_map)
+                        ->selectRaw("count(*)as total")
+                        ->where('kecamatan', $value2->kecamatan)
+                        ->where('t.kprk', $value2->kode_map)
+                        ->where($tahap.'tgl_serah','=','');
+                         // $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
+                        // ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
                         if($request->pbp == 'utama'){
-                            $pbp_total = $pbp_total->where('path_ktp',NULL);
+                            $pbp_total = $pbp_total->where('path_ktp','');
                         }else if($request->pbp == 'tambahan'){
                             $pbp_total = $pbp_total->where('path_ktp','B');
                         }
 
-                        $pbp_total = $pbp_total->where('t.kprk', $value2->kode_map)
-                        ->where('kecamatan', $value2->kecamatan)
+                        // $pbp_total = $pbp_total->where('t.kprk', $value2->kode_map)
+                        // ->where('kecamatan', $value2->kecamatan)
                         ->first()->total;
 
                         // $pbp_total = 0;
@@ -962,15 +967,18 @@ WHERE tgl_serah !='';";
                         $rencana_salur = DB::connection($request->db)->table($request->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kabupaten)->first()->total;
                         $rencana_salur_b = DB::connection($request->db)->table($request->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kabupaten)->where('path_ktp','B')->first()->total;
                         // $pbp_total = DB::connection($request->db)->table($value->kode_map)->selectRaw('count(*)as total, prefik')->whereIn('prefik', $tahap)->where('kabupaten',$value->kabupaten)->first()->total;
-                         $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kabupaten, k.path_ktp')
-                        ->leftJoin($request->kode_map." as k",'t.prefik','=','k.prefik');
+
+                        $tahap = strtolower($request->tahap)."_";
+                        $pbp_total = DB::connection($request->db)
+                        ->table($request->tahap." as t")
+                        ->selectRaw('count(*)as total')
+                        ->where($tahap.'tgl_serah','=','');
                         if($request->pbp == 'utama'){
                             $pbp_total = $pbp_total->where('path_ktp',NULL);
                         }else if($request->pbp == 'tambahan'){
                             $pbp_total = $pbp_total->where('path_ktp','B');
                         }
-                        $pbp_total = $pbp_total->where('t.kprk', $request->kode_map)
-                        ->where('kabupaten', $request->kabupaten)
+                        $pbp_total = $pbp_total->where('kabupaten', $request->kabupaten)
                         ->first()->total;
 
                         if($request->pbp == 'utama'){
