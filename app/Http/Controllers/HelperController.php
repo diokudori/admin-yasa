@@ -1101,4 +1101,65 @@ WHERE tgl_serah !='';";
              return Response::JSON(["kuantum"=>number_format((int)$kuantum,0,",","."), "transporter"=>number_format((int)$transporter,0,",","."), "persen_transporter"=>$persen_transporter, "pbp"=>number_format((int)$pbp,0,",","."), "persen_pbp"=>number_format($persen_pbp,2), "sisa"=>number_format((int)$sisa,0,",","."), "persen_sisa"=>number_format($persen_sisa,2)]);
         
     }
+
+
+     public function hitBulog($db, $tahap, $id){
+            $url = 'https://bpb.bulog.co.id/api/transporter/insert/';
+
+            $hit_bulog = DB::table('settings')->where('name','hit_bulog_enabled')->first()->value;
+            if($hit_bulog=='1'){
+                $param = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->first();
+                $param->transporter_key = 'YAT_zvqXIcAOhy';
+                $param->kabupaten = $param->kab;
+                $param->kecamatan = $param->kec;
+                $curlPost = http_build_query($param); 
+                $ch = curl_init();         
+                curl_setopt($ch, CURLOPT_URL, $url);         
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                curl_setopt($ch, CURLOPT_POST, 1);         
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);     
+                $data = json_decode(curl_exec($ch), true); 
+                $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                $status_hit = 1;
+                $id_bulog = (isset($data['data']['id']))?$data['data']['id']:'0';
+                if ($http_code != 200) { 
+                    $error_msg = 'Failed to receieve access token'; 
+                    if (curl_errno($ch)) { 
+                        $error_msg = curl_error($ch); 
+                        print_r($error_msg);
+                        $status_hit = 0;
+                    } 
+
+                    $status_hit = 0;
+                    
+                }
+
+            
+                if ($id_bulog!=0) {
+                    $update = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->update(['id_bulog' => $id_bulog, 'status_hit' => $status_hit]);
+                }
+            }else{
+                $data = ['status'=>false, 'message'=>'Hit bulog nonaktif'];
+            
+            }
+
+            return json_encode($data);
+    }
+
+    public function hitBulogAuto($db, $tahap){
+        $res = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('status_hit','0')->get();
+        if($res->count()==0){
+             echo "tidak ada data untuk diunggah";
+           return;
+        }
+        foreach ($res as $key => $value) {
+            $resp = json_decode($this->hitBulog($db,$tahap,$value->id));
+            // if(isset($resp['status'])){
+                // echo "sukses hit id: ".$value->id."</br>";
+            // }else{
+                print_r($resp);
+            // }
+        }
+    }
 }

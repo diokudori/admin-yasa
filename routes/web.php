@@ -109,7 +109,7 @@ Route::get('entry/distribution/table', [UserController::class,'entryDistribution
 Route::post('entry/distribution/list', [UserController::class,'entryDistributionList']);
 Route::post('entry/distribution/upload', [UserController::class,'entryDistributionUpload']);
 
-Route::get('bulog/entry', [UserController::class,'BulogEntry']);
+// Route::get('bulog/entry', [UserController::class,'BulogEntry']);
 Route::get('bulog/list', [UserController::class,'BulogList']);
 Route::post('bulog/list/data', [UserController::class,'BulogListData']);
 Route::get('bulog/data/kec', [UserController::class,'bulogDataKec']);

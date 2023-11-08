@@ -173,10 +173,10 @@
         "render": function(data, type, row, meta){
           var string = '';
 
-            if(data=='1'){
+            if(data.status_hit=='1'){
               string = '<span class="badge badge-success">Sudah</span>';
             }else{
-              string = '<span class="badge badge-warning">Belum</span>';
+              string = '<span class="badge badge-warning">Belum</span><br><button class="btn btn-success btn-upload" data-id="'+data.id+'">Unggah ke Bulog</button>';
             }
             return string;
         },
@@ -189,7 +189,7 @@
             { data: 'tanggal_alokasi' },
             { data: 'titik_penyerahan' },
             { data: null },
-            { data: 'status_hit' },
+            { data: null },
         ],
       "responsive": true, "lengthChange": false, "autoWidth": false,
     });

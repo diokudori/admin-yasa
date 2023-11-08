@@ -457,6 +457,40 @@ class UserController extends Controller
         }
     }
 
+    public function hitBulog($db, $tahap, $id){
+            $data['url_bulog'] = 'https://bpb.bulog.co.id/api/transporter/insert/';
+
+            $param = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->first();
+            $param->transporter_key = 'YAT_zvqXIcAOhy';
+            $param->kabupaten = $param->kab;
+            $param->kecamatan = $param->kec;
+            
+            $curlPost = http_build_query($param); 
+            $ch = curl_init();         
+            curl_setopt($ch, CURLOPT_URL, $data['url_bulog']);         
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+            curl_setopt($ch, CURLOPT_POST, 1);         
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);     
+            $data = json_decode(curl_exec($ch), true); 
+            $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+            $id_bulog = $data['data']['id'];
+            $status_hit = 1;
+            if ($http_code != 200) { 
+                $error_msg = 'Failed to receieve access token'; 
+                if (curl_errno($ch)) { 
+                    $error_msg = curl_error($ch); 
+                    $status_hit = 0;
+                } 
+
+                $status_hit = 0;
+                
+            }
+
+            $update = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->update(['id_bulog' => $id_bulog, 'status_hit' => $status_hit]);
+            return Response::JSON(['status'=>$update]);
+    }
+
      public function homeRealisasi(){
         if(Auth::user()->role==0){
             // $data['wilayah'] = DB::table('users')->select('name')->where('id','!=','34')->groupBy('name')->get();
@@ -1661,7 +1695,7 @@ class UserController extends Controller
             if($request->jenis_penerima=='tambahan'){
                 $list = $list->where('path_ktp','B');
             }else if($request->jenis_penerima=='utama'){
-                $list = $list->whereIn('path_ktp', ['',NULL]);
+                $list = $list->where('path_ktp', '');
                 
             }
 
