@@ -76,12 +76,12 @@
                   </div>
                   <div class="form-group ">
                     <label for="item_description">Nomor DO</label>
-                    <input name="transporter_doc" id="transporter_doc" class="form-control" required />
+                    <input name="transporter_doc" id="transporter_doc" class="form-control" />
 
                   </div>
                   <div class="form-group ">
                     <label for="item_description">Nomor Surat Jalan</label>
-                    <input name="transporter_bast" id="transporter_bast" class="form-control" required />
+                    <input name="transporter_bast" id="transporter_bast" class="form-control" />
                   </div>
                   <div class="form-group">
                 <label>Tanggal Alokasi</label>
@@ -202,7 +202,7 @@ $(".select2").select2();
 wil.on("change", function(){
    	$.ajax({
 	    type: 'GET',
-	    url: '/kabupaten/list',
+	    url: '/pbp-app/public/index.php/kabupaten/list',
 	    data: { table: wil.val() }
 	}).then(function (data) {
 		console.log(data);
@@ -229,7 +229,7 @@ wil.on("change", function(){
 kab.on("change", function(){
    	$.ajax({
 	    type: 'GET',
-	    url: '/kecamatan/list',
+	    url: '/pbp-app/public/index.php/kecamatan/list',
 	    data: { kab: kab.val(), table: wil.val() }
 	}).then(function (data) {
 		console.log(data);
@@ -256,7 +256,7 @@ kab.on("change", function(){
 
 		$.ajax({
 	    type: 'GET',
-	    url: '/kelurahan/list',
+	    url: '/pbp-app/public/index.php/kelurahan/list',
 	    data: {kec: kec.val(), table: wil.val()}
 	}).then(function (data) {
 		kel.html("");
