@@ -1104,15 +1104,18 @@ WHERE tgl_serah !='';";
 
 
      public function hitBulog($db, $tahap, $id){
-            $url = 'https://bpb.bulog.co.id/api/transporter/insert/';
+            // $url = 'https://bpb.bulog.co.id/api/transporter/insert/';
+            $url = 'https://bpb-sandbox.bulog.co.id/api/transporter/insert/';
 
             $hit_bulog = DB::table('settings')->where('name','hit_bulog_enabled')->first()->value;
             if($hit_bulog=='1'){
                 $param = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->first();
-                $param->transporter_key = 'YAT_zvqXIcAOhy';
+                // $param->transporter_key = 'YAT_zvqXIcAOhy';
+                $param->transporter_key = 'YAT_KEY_gshuy';
                 $param->kabupaten = $param->kab;
                 $param->kecamatan = $param->kec;
                 $curlPost = http_build_query($param); 
+                // echo $url;
                 $ch = curl_init();         
                 curl_setopt($ch, CURLOPT_URL, $url);         
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
@@ -1122,6 +1125,8 @@ WHERE tgl_serah !='';";
                 $data = json_decode(curl_exec($ch), true); 
                 $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
                 $status_hit = 1;
+                // print_r($data);
+                // print_r($http_code);
                 $id_bulog = (isset($data['data']['id']))?$data['data']['id']:'0';
                 if ($http_code != 200) { 
                     $error_msg = 'Failed to receieve access token'; 
@@ -1135,7 +1140,7 @@ WHERE tgl_serah !='';";
                     
                 }
 
-            
+                // echo $id_bulog;
                 if ($id_bulog!=0) {
                     $update = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->update(['id_bulog' => $id_bulog, 'status_hit' => $status_hit]);
                 }
@@ -1155,10 +1160,12 @@ WHERE tgl_serah !='';";
         }
         foreach ($res as $key => $value) {
             $resp = json_decode($this->hitBulog($db,$tahap,$value->id));
+
             // if(isset($resp['status'])){
                 // echo "sukses hit id: ".$value->id."</br>";
             // }else{
                 print_r($resp);
+                die();
             // }
         }
     }
@@ -1180,4 +1187,22 @@ WHERE tgl_serah !='';";
 
     }
 
+    public function updateMigrasi()
+    {
+        // Ambil data dari tabel sumber
+        $dataSumber = DB::table('2023_SEP')->where('kprk','69100')->get();
+
+        // Loop melalui setiap data sumber
+        foreach ($dataSumber as $sumber) {
+            // Lakukan update pada tabel tujuan
+            DB::table('69100')
+                ->where('prefik', $sumber->prefik) // Sesuaikan dengan kolom kunci utama
+                ->update([
+                    '2023_sep_path_pbp' => $sumber->path_pbp,
+                    // Tambahkan kolom-kolom lain sesuai kebutuhan
+                ]);
+        }
+
+        return response()->json(['message' => 'Data berhasil diupdate']);
+    }
 }

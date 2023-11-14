@@ -404,12 +404,11 @@ class UserController extends Controller
 
 
         }
-        
 
         $resp = DB::connection($request->db)
         ->table($request->tahap.'_data_gudang')
         ->updateOrInsert([
-            'transporter_bast'=>$request->transporter_bast,
+            'surat_jalan'=>$request->surat_jalan,
             'kel'=>$request->kelurahan,
             'kecamatan_id'=>$request->kecamatan_id,
         ],[
@@ -417,7 +416,7 @@ class UserController extends Controller
             'kprk'=>$request->wilayah,
             'kab'=>$request->kabupaten,
             'kec'=>$request->kecamatan,
-            'transporter_doc'=>$request->transporter_doc,
+            'no_out'=>$request->no_out,
             'tanggal_alokasi'=>$request->tanggal_alokasi,
             'titik_penyerahan'=>$request->titik_penyerahan,
             'tanggal'=>$request->tanggal,
@@ -429,7 +428,13 @@ class UserController extends Controller
             'id_bulog'=>$id_bulog,
             'created_by'=>Auth::user()->id,
         ]);
-
+        $lastInsertedId = DB::getPdo()->lastInsertId();
+        $kode_bast = 'BAST' . $request->wilayah . $request->kecamatan_id . $lastInsertedId;
+        $kode_doc = 'SJLN' . $request->wilayah . $request->kecamatan_id . $lastInsertedId;
+        DB::connection($request->db)
+        ->table($request->tahap.'_data_gudang')
+        ->where('id', $lastInsertedId)
+        ->update(['transporter_bast' => $kode_bast,'transporter_doc' => $kode_doc ]);
         return redirect()->back()->with('success', 'Berhasil menambahkan data gudang');  
     }
 
