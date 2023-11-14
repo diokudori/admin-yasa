@@ -408,7 +408,7 @@ class UserController extends Controller
         $resp = DB::connection($request->db)
         ->table($request->tahap.'_data_gudang')
         ->updateOrInsert([
-            'transporter_bast'=>'',
+            'surat_jalan'=>$request->surat_jalan,
             'kel'=>$request->kelurahan,
             'kecamatan_id'=>$request->kecamatan_id,
         ],[
@@ -416,7 +416,7 @@ class UserController extends Controller
             'kprk'=>$request->wilayah,
             'kab'=>$request->kabupaten,
             'kec'=>$request->kecamatan,
-            'transporter_doc'=>'',
+            'no_out'=>$request->no_out,
             'tanggal_alokasi'=>$request->tanggal_alokasi,
             'titik_penyerahan'=>$request->titik_penyerahan,
             'tanggal'=>$request->tanggal,

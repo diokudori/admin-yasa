@@ -76,12 +76,12 @@
                   </div>
                   <div class="form-group ">
                     <label for="item_description">Nomor DO</label>
-                    <input name="transporter_doc" id="transporter_doc" class="form-control" />
+                    <input name="no_out" id="no_out" class="form-control" />
 
                   </div>
                   <div class="form-group ">
                     <label for="item_description">Nomor Surat Jalan</label>
-                    <input name="transporter_bast" id="transporter_bast" class="form-control" />
+                    <input name="surat_jalan" id="surat_jalan" class="form-control" />
                   </div>
                   <div class="form-group">
                 <label>Tanggal Alokasi</label>
