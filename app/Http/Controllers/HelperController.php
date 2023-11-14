@@ -1162,4 +1162,22 @@ WHERE tgl_serah !='';";
             // }
         }
     }
+
+    public function generateBastDoc($db, $tahap){
+
+        $resp = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('transporter_bast','')->get();
+
+        foreach($resp as $v){
+            $transporter_bast = 'BAST'.$v->kprk.$v->kecamatan_id.$v->id;
+            $transporter_doc = 'SJLN'.$v->kprk.$v->kecamatan_id.$v->id;
+            DB::connection($db)->table(strtoupper($tahap)."_data_gudang")
+            ->where('id', $v->id)
+            ->update([
+                'transporter_bast'=>$transporter_bast,
+                'transporter_doc'=>$transporter_doc
+            ]);
+        }
+
+    }
+
 }

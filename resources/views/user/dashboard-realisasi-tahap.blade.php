@@ -520,23 +520,22 @@ function refreshData(id, val, ip){
 
 
 	$('.breadcrumb').html('');
-          $('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="db" data-val="'+prov.val()+'">'+$('#provinsi option:selected').text()+'</a></li>');
+          $('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="db" data-val="'+prov.val()+'" data-ip="'+ip+'">'+$('#provinsi option:selected').text()+'</a></li>');
           if(id=='kab'){
-          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'">'+kab+'</a></li>');
+          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'" data-ip="'+ip+'">'+kab+'</a></li>');
           }else if(id=='kec'){
-          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'">'+kab+'</a></li>');
-          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kec" data-val="'+kec+'">'+kec+'</a></li>');
+          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'"> data-ip="'+ip+'"'+kab+'</a></li>');
+          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kec" data-val="'+kec+'" data-ip="'+ip+'">'+kec+'</a></li>');
           }else if(id=='kel'){
-          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'">'+kab+'</a></li>');
-          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kec" data-val="'+kec+'">'+kec+'</a></li>');
-          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kel" data-val="'+kel+'">'+kel+'</a></li>');
+          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'" data-ip="'+ip+'">'+kab+'</a></li>');
+          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kec" data-val="'+kec+'" data-ip="'+ip+'">'+kec+'</a></li>');
+          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kel" data-val="'+kel+'" data-ip="'+ip+'">'+kel+'</a></li>');
           }
 
          
 	$.ajax({
           type: 'GET',
-          // url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab",
-          url: "<?=url('realisasi/tahap/table/all')?>",
+          url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all",
           data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: tgl_serah, pbp: pbp.val()}
         }).then(function (data) {
           // if(kab.val()!=''){
