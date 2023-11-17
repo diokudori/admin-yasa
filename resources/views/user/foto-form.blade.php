@@ -11,14 +11,14 @@
         <div class="row">
           <!-- left column -->
           <div class="col-md-6 col-sm-12">
-            @if (\Session::has('success'))
+          	@if (\Session::has('success'))
     <div class="alert alert-success">
         <h4>{!! \Session::get('success') !!}</h4>
     </div>
 @endif
 @if($errors->any())
 <div class="alert alert-danger">
-  <h4>{{$errors->first()}}</h4>
+	<h4>{{$errors->first()}}</h4>
 
 </div>
 @endif
@@ -33,7 +33,7 @@
     <strong>{{ $message }}</strong>
 </div>
 @endif
-              <form id="bulog-form" action="{{url('bulog/form/simpan')}}" method="POST">
+              <form id="bulog-form" action="{{url('bulog/foto/simpan')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="transporter_key" id="transporter_key" value="{{$transporter_key}}">
                 <input type="hidden" name="db" id="db" value="{{$db}}">
@@ -41,22 +41,22 @@
                 <input type="hidden" name="provinsi" value="{{$provinsi}}">
                 <input type="hidden" name="kecamatan_id" value="">
                 <div class="card-body">
-                  <div class="form-group">
+                	<div class="form-group">
                     <label for="item_code">Tahap Penyaluran</label>
                     <select name="tahap" id="tahap" class="form-control select2">
-                      @foreach($tahap as $t)
-                      <option value="{{$t->value}}">{{$t->name}}</option>
-                      @endforeach
+                    	@foreach($tahap as $t)
+                    	<option value="{{$t->value}}">{{$t->name}}</option>
+                    	@endforeach
                       </select>
                   </div>
                 
                 <div class="form-group">
-                  
+                	
                     <label for="item_code">Wilayah</label>
                     <select name="wilayah" id="wilayah" class="form-control select2">
-                      @foreach($wilayah as $w)
-                      <option value="{{$w->name}}" {{($wil==$w->name)?'selected':''}}>{{$w->name}}</option>
-                      @endforeach
+                    	@foreach($wilayah as $w)
+                    	<option value="{{$w->name}}" {{($wil==$w->name)?'selected':''}}>{{$w->name}}</option>
+                    	@endforeach
                       </select>
                   </div>
                   <div class="form-group">
@@ -66,7 +66,7 @@
                   </div>
                   <div class="form-group">
                     <label for="item_name">Kecamatan</label>
-                      <select name="kecamatan" id="kecamatan" class="form-control select2">
+                    	<select name="kecamatan" id="kecamatan" class="form-control select2">
                       </select>
                   </div>
                   <div class="form-group ">
@@ -74,15 +74,12 @@
                     <select name="kelurahan" id="kelurahan" class="form-control select2">
                       </select>
                   </div>
-                  <div class="form-group ">
-                    <label for="item_description">Nomor DO (Jika lebih dari satu gunakan tanda koma (,) tanpa spasi)</label>
-                    <input name="no_out" id="no_out" class="form-control" />
-
-                  </div>
-                  <div class="form-group ">
-                    <!-- <label for="item_description">Nomor Surat Jalan</label> -->
-                    <input type="hidden" name="surat_jalan" id="surat_jalan" class="form-control" />
-                  </div>
+            
+                  <div class="form-group">
+                <label for="gambar">Upload Gambar (Multiple)</label>
+                <input type="file" name="gambar[]" id="gambar" class="form-control" multiple accept="image/jpeg, image/png, image/gif">
+            </div>
+           
                   <div class="form-group">
                 <label>Tanggal Alokasi</label>
                 <div class="col-sm-10 input-group date" id="expdate" data-target-input="nearest">
@@ -92,22 +89,6 @@
                         </div>
                     </div>
               </div>
-              <div class="form-group">
-                    <label for="item_description">Titik Penyerahan</label>
-                    <input name="titik_penyerahan" id="titik_penyerahan" class="form-control" required />
-                  </div>
-                <div class="form-group">
-                    <!-- <label for="item_description">Kuantum</label> -->
-                    <input type="hidden" name="kuantum" id="kuantum" class="form-control" />
-                  </div>
-                  <div class="form-group ">
-                    <label for="item_description">Jumlah PBP</label>
-                    <input name="jumlah_pbp" id="jumlah_pbp" class="form-control" required />
-                  </div>
-                  <div class="form-group ">
-                    <label for="item_description">Jumlah SPTJM</label>
-                    <input name="jumlah_sptjm" id="jumlah_sptjm" class="form-control" required />
-                  </div>
                   <div id="sudah_hit" class="alert alert-success" style="display: none;">Sudah Hit Ke Bulog</div>
 
 
@@ -137,7 +118,7 @@
       <link rel="stylesheet" href="{{asset('plugins/select2/css/select2.min.css')}}">
         <link rel="stylesheet" href="{{asset('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
         <link rel="stylesheet" href="{{asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css')}}">
-    <link rel="stylesheet" href="{{asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
+  	<link rel="stylesheet" href="{{asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css')}}">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" type="text/css" />
 
 @stop
@@ -154,136 +135,146 @@
 <script src="{{asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
 <script src="{{asset('plugins/daterangepicker/daterangepicker.js')}}"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+<script>
+    // Menggunakan AJAX atau fetch untuk meminta data dari kontroler
+    fetch('/tampilkan-di-console') // Ganti URL dengan endpoint yang sesuai
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // Menampilkan respons dari kontroler di konsol browser
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+</script>
    <script type="text/javascript">
-    $(document).ready(function(){
-        $('#expdate').datetimepicker({
+   	$(document).ready(function(){
+   		  $('#expdate').datetimepicker({
         format: 'YYYY-MM-DD'
     });
-    var wil = $("#wilayah");
-      var admin = $('input[name=admin').val();
-      
+   	var wil = $("#wilayah");
+   		var admin = $('input[name=admin').val();
+   		
    
-    var db = $("#db");
-    var kab = $("#kabupaten");
-    var kec = $("#kecamatan");
-    var kel = $("#kelurahan");
+   	var db = $("#db");
+   	var kab = $("#kabupaten");
+   	var kec = $("#kecamatan");
+   	var kel = $("#kelurahan");
 
-    
+   	
 wil.trigger('change');
 if(admin!=0){
-        wil.removeClass('select2');
-      wil.attr("readonly","true");
-      $.ajax({
-      type: 'GET',
-      url: "<?=url('kabupaten/list')?>",
-      data: { table: wil.val() }
-  }).then(function (data) {
-    console.log(data);
-      // create the option and append to Select2
-      for(var i in data){
-        var option = new Option(data[i].kabupaten, data[i].kabupaten, true, true);
-        kab.append(option);
-      }
-      
-      kab.trigger('change');
+   			wil.removeClass('select2');
+ 			wil.attr("readonly","true");
+ 			$.ajax({
+	    type: 'GET',
+	    url: '/kabupaten/list',
+	    data: { table: wil.val() }
+	}).then(function (data) {
+		console.log(data);
+	    // create the option and append to Select2
+	    for(var i in data){
+	    	var option = new Option(data[i].kabupaten, data[i].kabupaten, true, true);
+	    	kab.append(option);
+	    }
+	    
+	    kab.trigger('change');
 
-      // manually trigger the `select2:select` event
-      kab.trigger({
-          type: 'select2:select',
-          params: {
-              data: data
-          }
-      });
-  });
-      }
+	    // manually trigger the `select2:select` event
+	    kab.trigger({
+	        type: 'select2:select',
+	        params: {
+	            data: data
+	        }
+	    });
+	});
+   		}
 $(".select2").select2();
 
 wil.on("change", function(){
-    $.ajax({
-      type: 'GET',
-      url: "<?=url('kabupaten/list')?>",
-      data: { table: wil.val() }
-  }).then(function (data) {
-    console.log(data);
-      // create the option and append to Select2
-      kab.html('');
-      for(var i in data){
-        var option = new Option(data[i].kabupaten, data[i].kabupaten, true, true);
-        kab.append(option);
-      }
-      
-      kab.trigger('change');
+   	$.ajax({
+	    type: 'GET',
+	    url: '/pbp-app/public/index.php/kabupaten/list',
+	    data: { table: wil.val() }
+	}).then(function (data) {
+		console.log(data);
+	    // create the option and append to Select2
+	    kab.html('');
+	    for(var i in data){
+	    	var option = new Option(data[i].kabupaten, data[i].kabupaten, true, true);
+	    	kab.append(option);
+	    }
+	    
+	    kab.trigger('change');
 
-      // manually trigger the `select2:select` event
-      kab.trigger({
-          type: 'select2:select',
-          params: {
-              data: data
-          }
-      });
-  });
-  });
+	    // manually trigger the `select2:select` event
+	    kab.trigger({
+	        type: 'select2:select',
+	        params: {
+	            data: data
+	        }
+	    });
+	});
+	});
 
 
 kab.on("change", function(){
-    $.ajax({
-      type: 'GET',
-      url: "<?=url('kecamatan/list')?>",
-      data: { kab: kab.val(), table: wil.val() }
-  }).then(function (data) {
-    console.log(data);
-      // create the option and append to Select2
-      kec.html('');
-      for(var i in data){
-        var option = new Option(data[i].kecamatan, data[i].kecamatan, true, true);
-        kec.append(option);
-      }
-      
-      kec.trigger('change');
+   	$.ajax({
+	    type: 'GET',
+	    url: '/pbp-app/public/index.php/kecamatan/list',
+	    data: { kab: kab.val(), table: wil.val() }
+	}).then(function (data) {
+		console.log(data);
+	    // create the option and append to Select2
+	    kec.html('');
+	    for(var i in data){
+	    	var option = new Option(data[i].kecamatan, data[i].kecamatan, true, true);
+	    	kec.append(option);
+	    }
+	    
+	    kec.trigger('change');
 
-      // manually trigger the `select2:select` event
-      kec.trigger({
-          type: 'select2:select',
-          params: {
-              data: data
-          }
-      });
-  });
-  });
+	    // manually trigger the `select2:select` event
+	    kec.trigger({
+	        type: 'select2:select',
+	        params: {
+	            data: data
+	        }
+	    });
+	});
+	});
 
-  kec.on("change", function(){
+	kec.on("change", function(){
 
-    $.ajax({
-      type: 'GET',
-      url: "<?=url('kelurahan/list')?>",
-      data: {kec: kec.val(), table: wil.val()}
-  }).then(function (data) {
-    kel.html("");
-    console.log(data);
-      // create the option and append to Select2
-      kel.html('');
-      for(var i in data){
-        var option = new Option(data[i].kelurahan, data[i].kelurahan, true, true);
-        kel.append(option);
-      }
-      
-      kel.trigger('change');
+		$.ajax({
+	    type: 'GET',
+	    url: '/pbp-app/public/index.php/kelurahan/list',
+	    data: {kec: kec.val(), table: wil.val()}
+	}).then(function (data) {
+		kel.html("");
+		console.log(data);
+	    // create the option and append to Select2
+	    kel.html('');
+	    for(var i in data){
+	    	var option = new Option(data[i].kelurahan, data[i].kelurahan, true, true);
+	    	kel.append(option);
+	    }
+	    
+	    kel.trigger('change');
 
-      // manually trigger the `select2:select` event
-      kel.trigger({
-          type: 'select2:select',
-          params: {
-              data: data
-          }
-      });
-  });
-  });
+	    // manually trigger the `select2:select` event
+	    kel.trigger({
+	        type: 'select2:select',
+	        params: {
+	            data: data
+	        }
+	    });
+	});
+	});
 
 
-  kel.on("change", function(){
-    var tahap = $('#tahap');
-    $.ajax({
+	kel.on("change", function(){
+		var tahap = $('#tahap');
+		$.ajax({
           type: 'GET',
           url: "<?=url('realisasi/table/total')?>",
           data: { db: db.val(), kab: kab.val(), kec: kec.val(), kel: kel.val(), tahap: tahap.val()}
@@ -296,15 +287,15 @@ kab.on("change", function(){
             
         });
 
-  });
+	});
 
-  kel.trigger('change');
+	kel.trigger('change');
 
-  // $('input[name=jumlah_sptjm]').on('focusout',function(){
-  //  var pbp = $('input[name=jumlah_pbp').val();
-  //  var newpbp = pbp-$(this).val();
-  //  $('input[name=jumlah_pbp').val(newpbp);
-  // });
+	// $('input[name=jumlah_sptjm]').on('focusout',function(){
+	// 	var pbp = $('input[name=jumlah_pbp').val();
+	// 	var newpbp = pbp-$(this).val();
+	// 	$('input[name=jumlah_pbp').val(newpbp);
+	// });
 
 
 //   $("#bulog-form").on("submit", function(event){
@@ -339,10 +330,10 @@ kab.on("change", function(){
   }
 
   function getBulogRiwayat(kec_id){
-    var tahap = $('select[name=tahap]').val();
-    var db = $('input[name=db]').val();
+  	var tahap = $('select[name=tahap]').val();
+  	var db = $('input[name=db]').val();
 
-      $.ajax({
+  		$.ajax({
           type: 'GET',
           url: "<?=url('bulog/data/riwayat')?>",
           data: { kelurahan: kel.val(), kecamatan_id: kec_id, db: db, tahap: tahap}
@@ -350,37 +341,37 @@ kab.on("change", function(){
           console.log(data);
 
           if(data.transporter_bast!=null){
-            $('input[name=transporter_bast]').val(data.transporter_bast);
-            $('input[name=no_out]').val(data.no_out);
-            $('input[name=tanggal_alokasi]').val(data.tanggal_alokasi);
-            $('input[name=titik_penyerahan]').val(data.titik_penyerahan);
-            $('input[name=kuantum]').val(data.kuantum);
-            $('input[name=jumlah_pbp]').val(data.jumlah_pbp+data.jumlah_sptjm);
-            $('input[name=jumlah_sptjm]').val(data.jumlah_sptjm);
-            if(data.status_hit=='1'){
-              $('#sudah_hit').show();
-              $('.btn-submit').attr('disabled','');
-            }
+          	$('input[name=transporter_bast]').val(data.transporter_bast);
+	          $('input[name=transporter_doc]').val(data.transporter_doc);
+	          $('input[name=tanggal_alokasi]').val(data.tanggal_alokasi);
+	          $('input[name=titik_penyerahan]').val(data.titik_penyerahan);
+	          $('input[name=kuantum]').val(data.kuantum);
+	          $('input[name=jumlah_pbp]').val(data.jumlah_pbp+data.jumlah_sptjm);
+	          $('input[name=jumlah_sptjm]').val(data.jumlah_sptjm);
+	          if(data.status_hit=='1'){
+	          	$('#sudah_hit').show();
+		          $('.btn-submit').attr('disabled','');
+		        }
           }else{
-            $('input[name=transporter_bast]').val('');
-            $('input[name=no_out]').val('');
-            $('input[name=tanggal_alokasi]').val('');
-            $('input[name=titik_penyerahan]').val('');
-            // $('input[name=kuantum]').val('');
-            $('input[name=jumlah_pbp]').val('');
-            $('input[name=jumlah_sptjm]').val('');
-            $('#sudah_hit').hide();
-            
-              $('.btn-submit').attr('disabled','').removeAttr('disabled');
-            
-            
+          	$('input[name=transporter_bast]').val('');
+	          $('input[name=transporter_doc]').val('');
+	          $('input[name=tanggal_alokasi]').val('');
+	          $('input[name=titik_penyerahan]').val('');
+	          // $('input[name=kuantum]').val('');
+	          $('input[name=jumlah_pbp]').val('');
+	          $('input[name=jumlah_sptjm]').val('');
+	          $('#sudah_hit').hide();
+	          
+	          	$('.btn-submit').attr('disabled','').removeAttr('disabled');
+	          
+	          
           }
 
           
             
         });
   }
-  
+	
 
    });
 
