@@ -274,6 +274,7 @@
     var sisa_total = 0;
     var persen_sisa_total = 0;
     var counter_kab = 0;
+    var ip = 'ptyaons-apps.com:8080';
 
     var detil_nama = 'Kota/Kab';
 
@@ -323,13 +324,16 @@ $('.overlay').show();
 });
 
 $('select[name=tgl_serah]').on("change", function(){
-    refreshData('kel',null,'');
+	
+    refreshData('kel','',ip);
 });
 $('table.table-real').on('click', 'a.btn-name', function(){
 	$('.overlay').show();
 	var id = $(this).data('id');
 	var val = $(this).data('val');
-  var ip = $(this).data('ip');
+  var ip2 = $(this).data('ip');
+  ip = ip2;
+  $('select[name=tgl_serah]').val('false');
 	refreshData(id,val,ip);
 
 });
@@ -338,7 +342,9 @@ $('ol.breadcrumb').on('click', 'a.btn-breadcrumb', function(){
 	$('.overlay').show();
 	var id = $(this).data('id');
 	var val = $(this).data('val');
-  var ip = $(this).data('ip');
+  var ip2 = $(this).data('ip');
+  ip = ip2;
+  $('select[name=tgl_serah]').val('false');
   refreshData(id,val,ip);
 
 });
@@ -487,17 +493,18 @@ function refreshData(id, val, ip){
    console.log(tgl_serah);
    $('.overlay').show();
    $('.overlay').show();
-	if(id=='db'){
-		db = val;
-		kab = '';
-		kec = '';
-		kel = '';
-		q_total = 0;
+   q_total = 0;
 	    pbp_total = 0;
 	    persen_pbp_total = 0;
 	    sisa_total = 0;
 	    persen_sisa_total = 0;
 	    counter_kab = 0;
+	if(id=='db'){
+		db = val;
+		kab = '';
+		kec = '';
+		kel = '';
+		
 	}
 	else if(id=='kab'){
 		kab = val;
@@ -508,7 +515,7 @@ function refreshData(id, val, ip){
 		kec = val;
 		kel = '';
 	}else if(id=='kel'){
-    if(val!=null){
+    if(val!=''){
       kel = val;
     }
 		
@@ -588,24 +595,27 @@ function refreshData(id, val, ip){
                     str += '<td>'+data[i].persen_sisa+'%</td>';
                     str += '</tr>';
                 }else{
-                    no += 1;
-                    str += '<tr>';
-                    str += '<td>'+no+'</td>';
-                    str += '<td>'+data[i].nama+'</td>';
-                    str += '<td>'+data[i].alamat+'</td>';
-                    str += '<td>'+data[i].prefik+'</td>';
-                    if(tgl_serah=='true'){
-                      str += '<td><a href="'+data[i].path_pbp+'" target="_blank">Lihat foto</a></td>';
-                      str += '<td><span class="badge '+data[i].status_penerima_class+'">'+data[i].status_penerima+'</span></td>';
-                    }
+                	for(var j in data[i].person){
+                		no += 1;
+	                    str += '<tr>';
+	                    str += '<td>'+no+'</td>';
+	                    str += '<td>'+data[i].person[j].nama+'</td>';
+	                    str += '<td>'+data[i].person[j].alamat+'</td>';
+	                    str += '<td>'+data[i].person[j].prefik+'</td>';
+	                    if(tgl_serah=='true'){
+	                      str += '<td><a href="'+data[i].person[j].path_pbp_tahap+'" target="_blank">Lihat foto</a></td>';
+	                      str += '<td><span class="badge '+data[i].person[j].status_penerima_class+'">'+data[i].person[j].status_penerima+'</span></td>';
+	                    }
+	                    
+	                    str += '</tr>';
+                	}
                     
-                    str += '</tr>';
                 }
 
-                q_total += parseInt(data[i].kuantum_r);
+                
+              q_total += parseInt(data[i].kuantum_r);
                 pbp_total += parseInt(data[i].pbp_r);
                 sisa_total += parseInt(data[i].sisa_r);
-              
               
             }
 
@@ -619,7 +629,12 @@ function refreshData(id, val, ip){
                 str2 += '<td><span class="badge bg-danger ">'+sisa_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");+'</span></td>';
                 str2 += '<td>'+(Math.round(persen_sisa_total * 100) / 100).toFixed(2)+'%</td>';
                 str2 += '</tr>';
-                $('#total-table-real').html(str2);
+                if(id=='kel' && val==''){
+                	
+                }else{
+                	$('#total-table-real').html(str2);
+                }
+                
 
             $('#table-real').html(str);
             $('.overlay-real').hide();
