@@ -711,34 +711,40 @@ WHERE tgl_serah !='';";
                      }
                     foreach ($kecamatan as $key => $value) {
                         $rencana_salur = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$value->kecamatan)->first()->total;
-                        // $pbp_total = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total, prefik')->whereIn('prefik', $tahap)->where('kabupaten',$request->kab)->where('kecamatan',$value->kecamatan)->first()->total;
-                         $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.kabupaten, k.path_ktp')
-                        ->leftJoin($v->kode_map." as k",'t.prefik','=','k.prefik')
-                        ->where('t.kprk', $v->kode_map)
+                        $rencana_salur_b = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$value->kecamatan)->where('path_ktp','B')->first()->total;
+                        
+                        $tahap = strtolower($request->tahap)."_";
+                        $pbp_total = DB::connection($request->db)
+                        ->table($v->kode_map)
+                        ->selectRaw("count(*)as total")
                         ->where('kecamatan', $value->kecamatan)
-                        ->where('kabupaten', $request->kab);
+                        ->where('kabupaten', $request->kab)
+                        ->where($tahap.'tgl_serah','=','');
+
                         if($request->pbp == 'utama'){
-                            $pbp_total = $pbp_total->where('path_ktp',NULL);
+                            $pbp_total = $pbp_total->where('path_ktp','');
                         }else if($request->pbp == 'tambahan'){
                             $pbp_total = $pbp_total->where('path_ktp','B');
                         }
+
                         $pbp_total = $pbp_total->first()->total;
 
-                        $rencana_salur_b = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten', $request->kab)->where('kecamatan',$value->kecamatan)->where('path_ktp','B')->first()->total;
                         if($request->pbp == 'utama'){
                             $rencana_salur = $rencana_salur - $rencana_salur_b;
                         }else if($request->pbp == 'tambahan'){
                             $rencana_salur = $rencana_salur_b;
                         }
                         $kuantum = $rencana_salur;
-                        $pbp = $pbp_total;
                         if($kuantum==0){
-                    // echo $value->kabupaten;
-                    continue;
-                }
-                        $persen_pbp = ($pbp/$kuantum)*100;
-                        $sisa = $kuantum-$pbp;
-                $persen_sisa = ($sisa/$kuantum)*100;
+                            continue;
+                        }else{
+                             $pbp = $pbp_total;
+                             $persen_pbp = ($pbp/$kuantum)*100;
+                             $sisa = $kuantum-$pbp;
+                             $persen_sisa = ($sisa/$kuantum)*100;
+                        }
+
+                       
                         // $arr_name = trim($value->kecamatan," ");
                        
                             $data[] = [
@@ -766,23 +772,26 @@ WHERE tgl_serah !='';";
                         continue;
                      }
                      foreach ($kelurahan as $key => $value) {
-                        // $tahap = DB::connection(Auth::user()->db)->table($request->tahap)->select('prefik')->where('kprk',$v->kode_map)->get()->pluck('prefik');
-                        $rencana_salur = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$request->kec)->where('kelurahan',$value->kelurahan)->first()->total;
-                        // $pbp_total = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total, prefik')->whereIn('prefik', $tahap)->where('kabupaten',$request->kab)->where('kecamatan',$request->kec)->where('kelurahan',$value->kelurahan)->first()->total;
-                         $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
-                        ->leftJoin($v->kode_map." as k",'t.prefik','=','k.prefik')
-                        ->where('t.kprk', $v->kode_map)
-                        ->where('kabupaten', $request->kab)
+                       $rencana_salur = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$request->kec)->where('kelurahan',$value->kelurahan)->first()->total;
+                        $rencana_salur_b = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$request->kec)->where('kelurahan',$value->kelurahan)->where('path_ktp','B')->first()->total;
+                        
+                        $tahap = strtolower($request->tahap)."_";
+                        $pbp_total = DB::connection($request->db)
+                        ->table($v->kode_map)
+                        ->selectRaw("count(*)as total")
                         ->where('kecamatan', $request->kec)
-                        ->where('kelurahan', $value->kelurahan);
+                        ->where('kabupaten', $request->kab)
+                        ->where('kelurahan', $value->kelurahan)
+                        ->where($tahap.'tgl_serah','=','');
+
                         if($request->pbp == 'utama'){
-                            $pbp_total = $pbp_total->where('path_ktp',NULL);
+                            $pbp_total = $pbp_total->where('path_ktp','');
                         }else if($request->pbp == 'tambahan'){
                             $pbp_total = $pbp_total->where('path_ktp','B');
                         }
+
                         $pbp_total = $pbp_total->first()->total;
 
-                        $rencana_salur_b = DB::connection($request->db)->table($v->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kab)->where('kecamatan',$request->kec)->where('path_ktp','B')->first()->total;
                         if($request->pbp == 'utama'){
                             $rencana_salur = $rencana_salur - $rencana_salur_b;
                         }else if($request->pbp == 'tambahan'){
@@ -790,49 +799,54 @@ WHERE tgl_serah !='';";
                         }
                         $kuantum = $rencana_salur;
                         if($kuantum==0){
-                    // echo $value->kabupaten;
-                    continue;
-                }
-                        $pbp = $pbp_total;
-                        $persen_pbp = ($pbp/$kuantum)*100;
-                        $sisa = $kuantum-$pbp;
-                $persen_sisa = ($sisa/$kuantum)*100;
-                        $data[] = ["nama"=>$value->kelurahan,"kuantum"=>number_format((float)$kuantum,0,",","."), "transporter"=>number_format((float)$transporter,0,",","."), "persen_transporter"=>$persen_transporter, "pbp"=>number_format((float)$pbp,0,",","."), "persen_pbp"=>number_format($persen_pbp,2), "sisa"=>number_format((int)$sisa,0,",","."), "persen_sisa"=>number_format($persen_sisa,2)];
+                            continue;
+                        }else{
+                             $pbp = $pbp_total;
+                             $persen_pbp = ($pbp/$kuantum)*100;
+                             $sisa = $kuantum-$pbp;
+                             $persen_sisa = ($sisa/$kuantum)*100;
+                        }
+                        $data[] = [
+                            "nama"=>$value->kelurahan,
+                            "kuantum"=>number_format((float)$kuantum,0,",","."), 
+                            "transporter"=>number_format((float)$transporter,0,",","."), 
+                            "persen_transporter"=>$persen_transporter, 
+                            "pbp"=>number_format((float)$pbp,0,",","."), 
+                            "persen_pbp"=>number_format($persen_pbp,2), 
+                            "sisa"=>number_format((int)$sisa,0,",","."), 
+                            "persen_sisa"=>number_format($persen_sisa,2),
+                            "kuantum_r"=>$kuantum,
+                            "pbp_r"=>$pbp,
+                            "sisa_r"=>$sisa
+                        ];
                     }
                     }
 
                 }else{
                     foreach ($kab as $k => $v) {
-                    $tahap = DB::connection($request->db)->table($request->tahap." as t")
-                    ->select('t.prefik','k.kabupaten','k.kecamatan','k.kelurahan','t.path_ktp')
-                    ->leftJoin($v->kode_map.' as k','t.prefik','=','k.prefik')
-                    ->where('t.kprk',$v->kode_map)
-                    ->where('kabupaten',$request->kab)
-                     ->where('kecamatan',$request->kec)
-                     ->where('kelurahan',$request->kel);
+                     $tahap = strtolower($request->tahap)."_";
+                        $person = DB::connection($request->db)
+                        ->table($v->kode_map)
+                        ->where('kecamatan', $request->kec)
+                        ->where('kabupaten', $request->kab)
+                        ->where('kelurahan', $request->kel);
+
                         if($request->pbp == 'utama'){
-                            $tahap = $tahap->where('path_ktp',NULL);
-                        }else if($request->pbp == 'tambahan'){
-                            $tahap = $tahap->where('path_ktp','B');
-                        }
-                    $tahap = $tahap->get()->pluck('prefik');
-
-                     $person = DB::connection($request->db)->table($v->kode_map)->select('*')
-                     ->where('kabupaten',$request->kab)
-                     ->where('kecamatan',$request->kec)
-                     ->where('kelurahan',$request->kel);
-
-                      if($request->pbp == 'utama'){
-                            $person = $person->where('path_ktp',NULL);
+                            $person = $person->where('path_ktp','');
                         }else if($request->pbp == 'tambahan'){
                             $person = $person->where('path_ktp','B');
                         }
-
+                        $kuantum = $person->count();
+                        $transporter = 0;
+                        $persen_transporter = 0;
                      if($request->tgl_serah == 'true'){
-                        $person = $person->whereIn('prefik', $tahap);
+                        $person = $person->where($tahap.'tgl_serah','!=','');
+                        $pbp_total = $person->count();
                      }else if($request->tgl_serah == 'false'){
-                        $person = $person->whereNotIn('prefik',$tahap);
+                        $person = $person->where($tahap.'tgl_serah','=','');
+                        $pbp_total = $kuantum-$person->count();
                      }
+
                      $person = $person->get();
                      if($person->count()==0){
                         continue;
@@ -840,26 +854,45 @@ WHERE tgl_serah !='';";
                      $db = ($request->db=='mysql')?'jatim_op_db':$request->db;
                      $status_penerima = [1=>'Penerima Sendiri','Pengganti','Perwakilan','Kolektif'];
                      $status_penerima_class = [1=>'bg-success','bg-primary','bg-warning','bg-dark'];
+                      $pbp = $pbp_total;
+                             $persen_pbp = ($pbp/$kuantum)*100;
+                             $sisa = $kuantum-$pbp;
+                             $persen_sisa = ($sisa/$kuantum)*100;
                      foreach ($person as $key => $value) {
                         if($request->tgl_serah == 'true'){
-                            $t = DB::connection(Auth::user()->db)->table($request->tahap)->where('kprk',$v->kode_map)->where('prefik',$value->prefik)->first();
+                            // $t = DB::connection(Auth::user()->db)->table($request->tahap)->where('kprk',$v->kode_map)->where('prefik',$value->prefik)->first();
 
-                            $haystack = $t->path_pbp;
+                            $haystack = $value->{$tahap.'path_pbp'};
                             $needle = 'drive';
                                 if (strpos($haystack, $needle) !== false) {
-                                    $person[$key]->path_pbp = $t->path_pbp;
+                                    $person[$key]->path_pbp_tahap = $haystack;
                                 }else{
-                                    $person[$key]->path_pbp = asset('uploads/'.$db.'/pbp/pbp_'.$value->prefik.'.jpg');
+                                    $person[$key]->path_pbp_tahap = asset('uploads/'.$request->tahap.'/pbp/'.$db.'/pbp_'.$value->prefik.'_'.$value->no_urut.'_'.$value->status_penerima.'.jpg');
                                 }
                            
-                           $person[$key]->status_penerima_class = $status_penerima_class[$t->status_penerima];
-                           $person[$key]->status_penerima = $status_penerima[$t->status_penerima];
+                           $person[$key]->status_penerima_class = $status_penerima_class[$value->{$tahap.'status_penerima'}];
+                           $person[$key]->status_penerima = $status_penerima[$value->{$tahap.'status_penerima'}];
                         }
                         
                         
                        
-                       $data[] = $person[$key];
+                       $p[] = $person[$key];
                     }
+
+                    $data[] = [
+                    
+                       "kuantum"=>number_format((float)$kuantum,0,",","."), 
+                       "transporter"=>number_format((float)$transporter,0,",","."), 
+                       "persen_transporter"=>$persen_transporter, 
+                       "pbp"=>number_format((float)$pbp,0,",","."), 
+                       "persen_pbp"=>number_format($persen_pbp,2), 
+                       "sisa"=>number_format((int)$sisa,0,",","."), 
+                       "persen_sisa"=>number_format($persen_sisa,2),
+                       "kuantum_r"=>$kuantum,
+                                "pbp_r"=>$pbp,
+                                "sisa_r"=>$sisa,
+                       "person"=>$p
+                   ];
                     }
 
                 }
