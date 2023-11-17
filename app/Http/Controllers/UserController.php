@@ -358,6 +358,87 @@ class UserController extends Controller
         return Response::JSON($data);
     }
 
+    public function fotoEntry(){
+        $data['wilayah'] = DB::table('users')->select('name')->where('id','!=','34')->groupBy('name')->get();
+        $data['tahap'] = DB::table('tahap')->select('*')->get();
+        $data['provinsi'] = DB::table('data_provinsi')->select('nama')->where('db',Auth::user()->db)->first()->nama;
+        $data['wil'] = Auth::user()->name;
+        $data['bulans'] = $this->bulans[date('m')];
+        $data['db'] = Auth::user()->db;
+
+        //live
+        $data['transporter_key'] = 'YAT_zvqXIcAOhy';
+
+        // $data['transporter_key'] = 'YAT_KEY_gshuy';
+
+        $data['url'] = 'https://bpb.bulog.co.id';
+        // $data['url'] = 'https://bpb-sandbox.bulog.co.id';
+        $data['url_bulog'] = $data['url'].'/api/transporter/insert/';
+        return view('user.foto-form')->with($data);
+    }
+    public function fotoFormSimpan(Request $request){
+ 
+        $request->validate([
+            'gambar.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Validasi untuk jenis file gambar
+        ]);
+
+        $files = $request->file('gambar');
+        foreach ($files as $file) {
+            $namaFile = $file->getClientOriginalName(); // Nama asli file
+            $lokasiSimpan = public_path('uploads/2023_NOV/pbp/jatim_op_db'); // Direktori penyimpanan
+
+            $file->move($lokasiSimpan, $namaFile); // Simpan file ke direktori yang ditentukan
+                $namaPisah = explode('_', $namaFile);
+                $namaPrefik = $namaPisah[1]; 
+                $namaUrut = $namaPisah[2]; 
+                $namaStatus = $namaPisah[3]; 
+                $namaFile = $file->getClientOriginalName(); // Nama asli file
+                $lokasiSimpan = public_path('uploads/2023_NOV/pbp/jatim_op_db'); // Direktori penyimpanan
+
+                $file->move($lokasiSimpan, $namaFile); // Simpan file ke direktori yang ditentukan
+                // $data = DB::connection($request->db)->table('69100')
+                // ->where('kelurahan', $request->kelurahan)
+                // ->where('kecamatan', $request->kecamatan)
+                // ->where('prefik', $namaPrefik)->update([
+                //     '2023_okt_transactor' => '1'
+                //     // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
+                // ]);
+                $data = DB::connection($request->db)->table('69100')
+                ->where('kelurahan', 'BLEGA')
+                ->where('kecamatan', 'BLEGA')
+                ->where('prefik', '310103030082')
+                ->update(['2023_okt_transactor' => 4]);
+    
+            }
+            return redirect()->back()->with('success', $request->kelurahan);
+
+        }
+
+    // $resp = DB::connection($request->db)
+    // ->table($request->tahap.'_data_gudang')
+    // ->updateOrInsert([
+    // 'surat_jalan'=>$request->surat_jalan,
+    // 'kel'=>$request->kelurahan,
+    // 'kecamatan_id'=>$request->kecamatan_id,
+    // ],[
+    // 'tahap'=>$request->tahap,
+    // 'kprk'=>$request->wilayah,
+    // 'kab'=>$request->kabupaten,
+    // 'kec'=>$request->kecamatan,
+    // 'no_out'=>$request->no_out,
+    // 'tanggal_alokasi'=>$request->tanggal_alokasi,
+    // 'titik_penyerahan'=>$request->titik_penyerahan,
+    // 'tanggal'=>$request->tanggal,
+    // 'kuantum'=>$request->kuantum,
+    // 'jumlah_pbp'=>$request->jumlah_pbp,
+    // 'jumlah_sptjm'=>$request->jumlah_sptjm,
+    // 'provinsi'=>$request->provinsi,
+
+    // 'created_by'=>Auth::user()->id,
+    // ]);
+    // return redirect()->back()->with('success', 'Nama gambar berhasil disimpan.');
+
+    
     public function bulogFormSimpan(Request $request){
                                     // YAT_zvqXIcA0hy
         // $data['transporter_key'] = 'YAT_zvqXIcAOhy';
