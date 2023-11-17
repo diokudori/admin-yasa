@@ -719,7 +719,7 @@ WHERE tgl_serah !='';";
                         ->selectRaw("count(*)as total")
                         ->where('kecamatan', $value->kecamatan)
                         ->where('kabupaten', $request->kab)
-                        ->where($tahap.'tgl_serah','=','');
+                        ->where($tahap.'tgl_serah','!=','');
 
                         if($request->pbp == 'utama'){
                             $pbp_total = $pbp_total->where('path_ktp','');
@@ -782,7 +782,7 @@ WHERE tgl_serah !='';";
                         ->where('kecamatan', $request->kec)
                         ->where('kabupaten', $request->kab)
                         ->where('kelurahan', $value->kelurahan)
-                        ->where($tahap.'tgl_serah','=','');
+                        ->where($tahap.'tgl_serah','!=','');
 
                         if($request->pbp == 'utama'){
                             $pbp_total = $pbp_total->where('path_ktp','');
@@ -930,7 +930,7 @@ WHERE tgl_serah !='';";
                         ->table($value2->kode_map)
                         ->selectRaw("count(*)as total")
                         ->where('kecamatan', $value2->kecamatan)
-                        ->where($tahap.'tgl_serah','=','');
+                        ->where($tahap.'tgl_serah','!=','');
                          // $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
                         // ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
                         if($request->pbp == 'utama'){
