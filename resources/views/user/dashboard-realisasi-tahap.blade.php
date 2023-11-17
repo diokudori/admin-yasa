@@ -234,14 +234,14 @@
 <script src="{{asset('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js')}}"></script>
 <script src="{{asset('plugins/datatables-responsive/js/dataTables.responsive.min.js')}}"></script>
 <script src="{{asset('plugins/datatables-responsive/js/responsive.bootstrap4.min.js')}}"></script>
-<script src="{{asset('plugins/datatables-buttons/js/dataTables.buttons.min.js')}}"></script>
-<script src="{{asset('plugins/datatables-buttons/js/buttons.bootstrap4.min.js')}}"></script>
-<script src="{{asset('plugins/jszip/jszip.min.js')}}"></script>
-<script src="{{asset('plugins/pdfmake/pdfmake.min.js')}}"></script>
-<script src="{{asset('plugins/pdfmake/vfs_fonts.js')}}"></script>
-<script src="{{asset('plugins/datatables-buttons/js/buttons.html5.min.js')}}"></script>
-<script src="{{asset('plugins/datatables-buttons/js/buttons.print.min.js')}}"></script>
-<script src="{{asset('plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
+<!-- <script src="{{asset('plugins/datatables-buttons/js/dataTables.buttons.min.js')}}"></script> -->
+<!-- <script src="{{asset('plugins/datatables-buttons/js/buttons.bootstrap4.min.js')}}"></script> -->
+<!-- <script src="{{asset('plugins/jszip/jszip.min.js')}}"></script> -->
+<!-- <script src="{{asset('plugins/pdfmake/pdfmake.min.js')}}"></script> -->
+<!-- <script src="{{asset('plugins/pdfmake/vfs_fonts.js')}}"></script> -->
+<!-- <script src="{{asset('plugins/datatables-buttons/js/buttons.html5.min.js')}}"></script> -->
+<!-- <script src="{{asset('plugins/datatables-buttons/js/buttons.print.min.js')}}"></script> -->
+<!-- <script src="{{asset('plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script> -->
   <!-- InputMask -->
 <script src="{{asset('plugins/moment/moment.min.js')}}"></script>
    <script src="{{asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
@@ -315,58 +315,10 @@ $('.overlay').show();
   }else{
    
 
-    $.ajax({
-          type: 'GET',
-          url: "<?=url('realisasi/tahap/table/kab/list')?>",
-          data: { db: prov.val(), kab: kab, tahap: tahap.val()}
-        }).then(function (data) {
-        
-          console.log(data);
-            var no = 0;
-            counter_kab = no;
-             $('#table-real').html('');
-             data_kab = data;
-            for(var i in data){
-              
-         
-                    no += 1;
-                    // getDataKabAll(data_kab[0], 1, data.length);
-                    getDataKabAll(data_kab[i], no, data.length);
-          
-              
-              
-            }
-
-            
-        });
+   refreshKab();
 
 
-        // $.ajax({
-        //   type: 'GET',
-        //   url: "realisasi/tahap/table/total",
-        //   data: { db: prov.val(), kab: kab, kec: kec, kel: kel, tahap: tahap.val(), pbp: pbp.val()}
-        // }).then(function (data) {
-        //   console.log(data);
-        //   var no = 0;
-        //       var str = '';
-             
-        //         no += 1;
-        //         str += '<tr>';
-        //         str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
-        //         // str += '<td>'+data.transporter+'</td>';
-        //         // str += '<td>'+data.persen_transporter+'%</td>';
-        //         str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
-        //         str += '<td>'+data.persen_pbp+'%</td>';
-        //         str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
-        //         str += '<td>'+data.persen_sisa+'%</td>';
-        //         str += '</tr>';
-        //         $('#total-table-real').html(str);
-        //         $('.overlay-total').hide();
-        //                 //dataAll.push(data[i][j]);
-              
-              
-            
-        // });
+    
   }
 });
 
@@ -391,6 +343,33 @@ $('ol.breadcrumb').on('click', 'a.btn-breadcrumb', function(){
 
 });
 
+function refreshKab(){
+	 $.ajax({
+          type: 'GET',
+          url: "<?=url('realisasi/tahap/table/kab/list')?>",
+          data: { db: prov.val(), kab: kab, tahap: tahap.val()}
+        }).then(function (data) {
+        
+          console.log(data);
+            var no = 0;
+            counter_kab = no;
+             $('#table-real').html('');
+             data_kab = data;
+            for(var i in data){
+              
+         
+                    no += 1;
+                    // getDataKabAll(data_kab[0], 1, data.length);
+                    getDataKabAll(data_kab[i], no, data.length);
+          
+              
+              
+            }
+
+            
+        });
+}
+
 function getDataKabAll(param, no, max){
   if(param.ip==null){
     getDataKabAll(data_kab[no], no+1, max);
@@ -402,8 +381,10 @@ function getDataKabAll(param, no, max){
           type: 'GET',
           url: "http://"+param.ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all/kab",
           // url: "realisasi/tahap/table/all/kab",
-          data: param
-        }).then(function (data) {
+          data: param,
+          tryCount : 0,
+    	  retryLimit : 3,
+        success: function (data) {
           counter_kab += 1;
           // if(kab.val()!=''){
           //   table_real.destroy();
@@ -445,9 +426,7 @@ function getDataKabAll(param, no, max){
             
                 q_total += parseInt(data[i].kuantum_r);
                 pbp_total += parseInt(data[i].pbp_r);
-                // persen_pbp_total += parseFloat(data[i].persen_pbp);
                 sisa_total += parseInt(data[i].sisa_r);
-                // persen_sisa_total += parseFloat(data[i].persen_sisa);
               
               
             }
@@ -473,7 +452,25 @@ function getDataKabAll(param, no, max){
             }
 
 
-            
+         },
+          error : function(xhr, textStatus, errorThrown ) {
+          	console.log(textStatus);
+          	console.log(xhr);
+        if (textStatus == 'timeout') {
+            this.tryCount++;
+            if (this.tryCount <= this.retryLimit) {
+                //try again
+                $.ajax(this);
+                return;
+            }            
+            return;
+        }
+        if (xhr.status == 500) {
+            $.ajax(this);
+        } else {
+            //handle error
+        }
+    }   
         });
   }
  
@@ -495,11 +492,18 @@ function refreshData(id, val, ip){
 		kab = '';
 		kec = '';
 		kel = '';
+		q_total = 0;
+	    pbp_total = 0;
+	    persen_pbp_total = 0;
+	    sisa_total = 0;
+	    persen_sisa_total = 0;
+	    counter_kab = 0;
 	}
 	else if(id=='kab'){
 		kab = val;
 		kec = '';
 		kel = '';
+		
 	}else if(id=='kec'){
 		kec = val;
 		kel = '';
@@ -524,7 +528,7 @@ function refreshData(id, val, ip){
           if(id=='kab'){
           	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'" data-ip="'+ip+'">'+kab+'</a></li>');
           }else if(id=='kec'){
-          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'"> data-ip="'+ip+'"'+kab+'</a></li>');
+          	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'" data-ip="'+ip+'">'+kab+'</a></li>');
           	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kec" data-val="'+kec+'" data-ip="'+ip+'">'+kec+'</a></li>');
           }else if(id=='kel'){
           	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kab" data-val="'+kab+'" data-ip="'+ip+'">'+kab+'</a></li>');
@@ -532,8 +536,10 @@ function refreshData(id, val, ip){
           	$('.breadcrumb').append('<li class="breadcrumb-item"><a href="#" class="btn-breadcrumb" data-id="kel" data-val="'+kel+'" data-ip="'+ip+'">'+kel+'</a></li>');
           }
 
-         
-	$.ajax({
+    if(id=='db'){
+    	refreshKab();
+    }else{
+    	$.ajax({
           type: 'GET',
           url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/all",
           data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: tgl_serah, pbp: pbp.val()}
@@ -595,49 +601,35 @@ function refreshData(id, val, ip){
                     
                     str += '</tr>';
                 }
-                
-                
-                        //dataAll.push(data[i][j]);
+
+                q_total += parseInt(data[i].kuantum_r);
+                pbp_total += parseInt(data[i].pbp_r);
+                sisa_total += parseInt(data[i].sisa_r);
               
               
             }
 
-           
+            var str2 = '';
+            persen_pbp_total = (pbp_total/q_total)*100;
+            persen_sisa_total = (sisa_total/q_total)*100;
+             str2 += '<tr>';
+                str2 += '<td><span class="badge bg-info">'+q_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");+'</span></td>';
+                str2 += '<td><span class="badge bg-success ">'+pbp_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");+'</span></td>';
+                str2 += '<td>'+(Math.round(persen_pbp_total * 100) / 100).toFixed(2)+'%</td>';
+                str2 += '<td><span class="badge bg-danger ">'+sisa_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");+'</span></td>';
+                str2 += '<td>'+(Math.round(persen_sisa_total * 100) / 100).toFixed(2)+'%</td>';
+                str2 += '</tr>';
+                $('#total-table-real').html(str2);
 
             $('#table-real').html(str);
             $('.overlay-real').hide();
-            // $('.table-real').addClass('datatables');
-           // table_real = $('.table-real').DataTable();
+            $('.overlay-total').hide();
         });
+    }
+         
+	
 
 
-        $.ajax({
-          type: 'GET',
-          // url: "http://"+ip+"/pbp-app/public/index.php/api/realisasi/tahap/table/total/kab",
-          url: "<?=url('realisasi/tahap/table/total')?>",
-          data: { db: db, kab: kab, kec: kec, kel: kel, tahap: tahap.val(), tgl_serah: $('select[name=tgl_serah]').val(), pbp: pbp.val()}
-        }).then(function (data) {
-          console.log(data);
-          var no = 0;
-              var str = '';
-             
-                no += 1;
-                str += '<tr>';
-                str += '<td><span class="badge bg-info">'+data.kuantum+'</span></td>';
-                // str += '<td>'+data.transporter+'</td>';
-                // str += '<td>'+data.persen_transporter+'%</td>';
-                str += '<td><span class="badge bg-success ">'+data.pbp+'</span></td>';
-                str += '<td>'+data.persen_pbp+'%</td>';
-                str += '<td><span class="badge bg-danger ">'+data.sisa+'</span></td>';
-                str += '<td>'+data.persen_sisa+'%</td>';
-                str += '</tr>';
-                $('#total-table-real').html(str);
-                $('.overlay-total').hide();
-                        //dataAll.push(data[i][j]);
-              
-              
-            
-        });
 }
 
 // kab.on("change", function(){

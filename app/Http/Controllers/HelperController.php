@@ -1103,46 +1103,77 @@ WHERE tgl_serah !='';";
     }
 
 
-     public function hitBulog($db, $tahap, $id){
-            // $url = 'https://bpb.bulog.co.id/api/transporter/insert/';
-            $url = 'https://bpb-sandbox.bulog.co.id/api/transporter/insert/';
+     public function hitBulog($db, $tahap, $id, $hit_bulog, $dest='sandbox'){
 
-            $hit_bulog = DB::table('settings')->where('name','hit_bulog_enabled')->first()->value;
+     		if($dest=='live'){
+     			$url = 'https://bpb.bulog.co.id/api/transporter/insert/';
+     			$key = 'YAT_zvqXIcAOhy';
+     		}else{
+     			$url = 'https://bpb-sandbox.bulog.co.id/api/transporter/insert/';
+     			$key = 'YAT_KEY_gshuy';
+     		}
+            
             if($hit_bulog=='1'){
                 $param = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->first();
                 // $param->transporter_key = 'YAT_zvqXIcAOhy';
-                $param->transporter_key = 'YAT_KEY_gshuy';
+                $param->transporter_key = $key;
                 $param->kabupaten = $param->kab;
                 $param->kecamatan = $param->kec;
+                $param->kelurahan = $param->kel;
+                $param->kuantum = $param->kuantum*10;
+                // unset($param->no_out);
                 $curlPost = http_build_query($param); 
+
+                print_r($curlPost);
+                // die();
                 // echo $url;
+                $fp = fopen(public_path().'/curlerrorlog.txt', 'w');
                 $ch = curl_init();         
                 curl_setopt($ch, CURLOPT_URL, $url);         
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
                 curl_setopt($ch, CURLOPT_POST, 1);         
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);     
+                curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                curl_setopt($ch, CURLOPT_STDERR, $fp);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+
+
                 $data = json_decode(curl_exec($ch), true); 
                 $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
-                $status_hit = 1;
+                if($dest=='live'){
+                    $status_hit = 1;
+                    $status_hit_sandbox = 0;
+                }else{
+                    $status_hit = 0;
+                    $status_hit_sandbox = 1;
+                }
+               
                 // print_r($data);
                 // print_r($http_code);
+                // print_r($curlPost);
                 $id_bulog = (isset($data['data']['id']))?$data['data']['id']:'0';
                 if ($http_code != 200) { 
                     $error_msg = 'Failed to receieve access token'; 
                     if (curl_errno($ch)) { 
                         $error_msg = curl_error($ch); 
                         print_r($error_msg);
+
                         $status_hit = 0;
+                        $status_hit_sandbox = 0;
                     } 
 
                     $status_hit = 0;
+                    $status_hit_sandbox = 0;
                     
+                }
+
+                if($data['status']==false){
+                    $error_msg = $data['message'];
                 }
 
                 // echo $id_bulog;
                 if ($id_bulog!=0) {
-                    $update = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->update(['id_bulog' => $id_bulog, 'status_hit' => $status_hit]);
+                    $update = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('id',$id)->update(['id_bulog' => $id_bulog, 'status_hit' => $status_hit, 'status_hit_sandbox'=>$status_hit_sandbox, 'error_message'=>$error_msg]);
                 }
             }else{
                 $data = ['status'=>false, 'message'=>'Hit bulog nonaktif'];
@@ -1152,20 +1183,21 @@ WHERE tgl_serah !='';";
             return json_encode($data);
     }
 
-    public function hitBulogAuto($db, $tahap){
+    public function hitBulogAuto($db, $tahap, $dest){
         $res = DB::connection($db)->table(strtoupper($tahap)."_data_gudang")->where('status_hit','0')->get();
         if($res->count()==0){
              echo "tidak ada data untuk diunggah";
            return;
         }
+        $hit_bulog = DB::table('settings')->where('name','hit_bulog_enabled')->first()->value;
         foreach ($res as $key => $value) {
-            $resp = json_decode($this->hitBulog($db,$tahap,$value->id));
+            $resp = json_decode($this->hitBulog($db,$tahap,$value->id, $hit_bulog, $dest));
 
             // if(isset($resp['status'])){
                 // echo "sukses hit id: ".$value->id."</br>";
             // }else{
                 print_r($resp);
-                die();
+                // die();
             // }
         }
     }

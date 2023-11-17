@@ -366,41 +366,41 @@ class UserController extends Controller
         //sandbox
         // $data['transporter_key'] = 'YAT_KEY_gshuy';
         // $data['url'] = 'https://bpb-sandbox.bulog.co.id';
-        $check = DB::connection($request->db)->table($request->tahap.'_data_gudang')
-        ->where('transporter_bast',$request->transporter_bast)
-        ->where('kel', '!=',$request->kelurahan)
-        ->get();
-        if($check->count()>0){
-            return Redirect::back()->withErrors(['msg' => 'No Surat Jalan sudah digunakan dikelurahan lain']);
-        }
+        // $check = DB::connection($request->db)->table($request->tahap.'_data_gudang')
+        // ->where('transporter_bast',$request->transporter_bast)
+        // ->where('kel', '!=',$request->kelurahan)
+        // ->get();
+        // if($check->count()>0){
+        //     return Redirect::back()->withErrors(['msg' => 'No Surat Jalan sudah digunakan dikelurahan lain']);
+        // }
         $hit_bulog = DB::table('settings')->where('name','hit_bulog_enabled')->first()->value;
 
         $request->jumlah_pbp = $request->jumlah_pbp - $request->jumlah_sptjm;
         $status_hit = 0;
         $id_bulog = 0;
         if($hit_bulog=='1'){
-            $data['url_bulog'] = $data['url'].'/api/transporter/insert/';
-            $curlPost = http_build_query($request->all()); 
-            $ch = curl_init();         
-            curl_setopt($ch, CURLOPT_URL, $data['url_bulog']);         
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
-            curl_setopt($ch, CURLOPT_POST, 1);         
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);     
-            $data = json_decode(curl_exec($ch), true); 
-            $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
-            $id_bulog = $data['data']['id'];
-            $status_hit = 1;
-            if ($http_code != 200) { 
-                $error_msg = 'Failed to receieve access token'; 
-                if (curl_errno($ch)) { 
-                    $error_msg = curl_error($ch); 
-                    $status_hit = 0;
-                } 
+            // $data['url_bulog'] = $data['url'].'/api/transporter/insert/';
+            // $curlPost = http_build_query($request->all()); 
+            // $ch = curl_init();         
+            // curl_setopt($ch, CURLOPT_URL, $data['url_bulog']);         
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+            // curl_setopt($ch, CURLOPT_POST, 1);         
+            // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);     
+            // $data = json_decode(curl_exec($ch), true); 
+            // $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+            // $id_bulog = $data['data']['id'];
+            // $status_hit = 1;
+            // if ($http_code != 200) { 
+            //     $error_msg = 'Failed to receieve access token'; 
+            //     if (curl_errno($ch)) { 
+            //         $error_msg = curl_error($ch); 
+            //         $status_hit = 0;
+            //     } 
 
-                $status_hit = 0;
+            //     $status_hit = 0;
                 
-            }
+            // }
 
 
         }
@@ -408,10 +408,10 @@ class UserController extends Controller
         $resp = DB::connection($request->db)
         ->table($request->tahap.'_data_gudang')
         ->updateOrInsert([
-            'surat_jalan'=>$request->surat_jalan,
             'kel'=>$request->kelurahan,
             'kecamatan_id'=>$request->kecamatan_id,
         ],[
+            'surat_jalan'=>$request->surat_jalan,
             'tahap'=>$request->tahap,
             'kprk'=>$request->wilayah,
             'kab'=>$request->kabupaten,

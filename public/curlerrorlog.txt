@@ -1,0 +1,31 @@
+*   Trying 149.129.245.16:443...
+* Connected to bpb-sandbox.bulog.co.id (149.129.245.16) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN, server accepted to use http/1.1
+* Server certificate:
+*  subject: C=ID; L=Jakarta Selatan; O=Perum BULOG; CN=*.bulog.co.id
+*  start date: Jun 12 00:00:00 2023 GMT
+*  expire date: Jun  4 23:59:59 2024 GMT
+*  subjectAltName: host "bpb-sandbox.bulog.co.id" matched cert's "*.bulog.co.id"
+*  issuer: C=US; O=DigiCert Inc; CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1
+*  SSL certificate verify result: unable to get local issuer certificate (20), continuing anyway.
+> POST /api/transporter/insert/ HTTP/1.1
+Host: bpb-sandbox.bulog.co.id
+Accept: */*
+Content-Length: 602
+Content-Type: application/x-www-form-urlencoded
+
+* old SSL session ID is stale, removing
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: nginx/1.18.0 (Ubuntu)
+< Date: Thu, 16 Nov 2023 01:40:03 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 74
+< Connection: keep-alive
+< Set-Cookie: session_id=f2daa83eb20eb7b40255baf1053874442b8a9444; Expires=Wed, 14-Feb-2024 01:40:03 GMT; Max-Age=7776000; HttpOnly; Path=/
+< Set-Cookie: TS01f03a32=013a3bd41ebdb16777a2e6d86895ae7689c65e339d53648d4e059325afc77b199b4d51594a71e6b337b64b24258e1fd3babf0127c043ff35d6e163b982de9e964726c6ed79; Path=/
+< 
+* Connection #0 to host bpb-sandbox.bulog.co.id left intact

@@ -848,7 +848,7 @@ Route::get('realisasi/tahap/table/total', [HelperController::class,'realTahapTab
 Route::get('realisasi/tahap/table/all/kab', [HelperController::class,'realTahapTableAllKab']);
 Route::get('realisasi/tahap/table/total/kab', [HelperController::class,'realTahapTableTotalKab']);
 
-Route::get('bulog/entry/{db}/{tahap}', [HelperController::class,'hitBulogAuto']);
+Route::get('bulog/entry/{db}/{tahap}/{dest}', [HelperController::class,'hitBulogAuto']);
 
 Route::get('generatebastdoc/{db}/{tahap}', [HelperController::class,'generateBastDoc']);
 

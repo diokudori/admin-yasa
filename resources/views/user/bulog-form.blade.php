@@ -75,13 +75,13 @@
                       </select>
                   </div>
                   <div class="form-group ">
-                    <label for="item_description">Nomor DO</label>
+                    <label for="item_description">Nomor DO (Jika lebih dari satu gunakan tanda koma (,) tanpa spasi)</label>
                     <input name="no_out" id="no_out" class="form-control" />
 
                   </div>
                   <div class="form-group ">
-                    <label for="item_description">Nomor Surat Jalan</label>
-                    <input name="surat_jalan" id="surat_jalan" class="form-control" />
+                    <!-- <label for="item_description">Nomor Surat Jalan</label> -->
+                    <input type="hidden" name="surat_jalan" id="surat_jalan" class="form-control" />
                   </div>
                   <div class="form-group">
                 <label>Tanggal Alokasi</label>
@@ -97,8 +97,8 @@
                     <input name="titik_penyerahan" id="titik_penyerahan" class="form-control" required />
                   </div>
                 <div class="form-group">
-                    <label for="item_description">Kuantum</label>
-                    <input name="kuantum" id="kuantum" class="form-control" />
+                    <!-- <label for="item_description">Kuantum</label> -->
+                    <input type="hidden" name="kuantum" id="kuantum" class="form-control" />
                   </div>
                   <div class="form-group ">
                     <label for="item_description">Jumlah PBP</label>
@@ -176,7 +176,7 @@ if(admin!=0){
  			wil.attr("readonly","true");
  			$.ajax({
 	    type: 'GET',
-	    url: '/kabupaten/list',
+	    url: "<?=url('kabupaten/list')?>",
 	    data: { table: wil.val() }
 	}).then(function (data) {
 		console.log(data);
@@ -202,7 +202,7 @@ $(".select2").select2();
 wil.on("change", function(){
    	$.ajax({
 	    type: 'GET',
-	    url: '/pbp-app/public/index.php/kabupaten/list',
+	    url: "<?=url('kabupaten/list')?>",
 	    data: { table: wil.val() }
 	}).then(function (data) {
 		console.log(data);
@@ -229,7 +229,7 @@ wil.on("change", function(){
 kab.on("change", function(){
    	$.ajax({
 	    type: 'GET',
-	    url: '/pbp-app/public/index.php/kecamatan/list',
+	    url: "<?=url('kecamatan/list')?>",
 	    data: { kab: kab.val(), table: wil.val() }
 	}).then(function (data) {
 		console.log(data);
@@ -256,7 +256,7 @@ kab.on("change", function(){
 
 		$.ajax({
 	    type: 'GET',
-	    url: '/pbp-app/public/index.php/kelurahan/list',
+	    url: "<?=url('kelurahan/list')?>",
 	    data: {kec: kec.val(), table: wil.val()}
 	}).then(function (data) {
 		kel.html("");
@@ -351,7 +351,7 @@ kab.on("change", function(){
 
           if(data.transporter_bast!=null){
           	$('input[name=transporter_bast]').val(data.transporter_bast);
-	          $('input[name=transporter_doc]').val(data.transporter_doc);
+	          $('input[name=no_out]').val(data.no_out);
 	          $('input[name=tanggal_alokasi]').val(data.tanggal_alokasi);
 	          $('input[name=titik_penyerahan]').val(data.titik_penyerahan);
 	          $('input[name=kuantum]').val(data.kuantum);
@@ -363,7 +363,7 @@ kab.on("change", function(){
 		        }
           }else{
           	$('input[name=transporter_bast]').val('');
-	          $('input[name=transporter_doc]').val('');
+	          $('input[name=no_out]').val('');
 	          $('input[name=tanggal_alokasi]').val('');
 	          $('input[name=titik_penyerahan]').val('');
 	          // $('input[name=kuantum]').val('');
