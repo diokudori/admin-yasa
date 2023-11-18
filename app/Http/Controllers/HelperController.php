@@ -994,25 +994,27 @@ WHERE tgl_serah !='';";
 
               }else{
                    
-                        // $tahap = DB::connection(Auth::user()->db)->table($request->tahap)->select('prefik')->where('kprk',$value->kode_map)->get()->pluck('prefik');
-                        
                         $rencana_salur = DB::connection($request->db)->table($request->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kabupaten)->first()->total;
                         $rencana_salur_b = DB::connection($request->db)->table($request->kode_map)->selectRaw('count(*)as total')->where('kabupaten',$request->kabupaten)->where('path_ktp','B')->first()->total;
-                        // $pbp_total = DB::connection($request->db)->table($value->kode_map)->selectRaw('count(*)as total, prefik')->whereIn('prefik', $tahap)->where('kabupaten',$value->kabupaten)->first()->total;
-
                         $tahap = strtolower($request->tahap)."_";
                         $pbp_total = DB::connection($request->db)
-                        ->table($request->tahap." as t")
-                        ->selectRaw('count(*)as total')
-                        ->where($tahap.'tgl_serah','=','');
+                        ->table($request->kode_map)
+                        ->selectRaw("count(*)as total")
+                        ->where('kabupaten', $request->kabupaten)
+                        ->where($tahap.'tgl_serah','!=','');
+                         // $pbp_total = DB::connection($request->db)->table($request->tahap." as t")->selectRaw('count(t.prefik)as total, k.kecamatan, k.path_ktp')
+                        // ->leftJoin($value2->kode_map." as k",'t.prefik','=','k.prefik');
                         if($request->pbp == 'utama'){
-                            $pbp_total = $pbp_total->where('path_ktp',NULL);
+                            $pbp_total = $pbp_total->where('path_ktp','');
                         }else if($request->pbp == 'tambahan'){
                             $pbp_total = $pbp_total->where('path_ktp','B');
                         }
-                        $pbp_total = $pbp_total->where('kabupaten', $request->kabupaten)
-                        ->first()->total;
 
+                        // $pbp_total = $pbp_total->where('t.kprk', $value2->kode_map)
+                        // ->where('kecamatan', $value2->kecamatan)
+                        $pbp_total = $pbp_total->first()->total;
+
+                        // $pbp_total = 0;
                         if($request->pbp == 'utama'){
                             $rencana_salur = $rencana_salur - $rencana_salur_b;
                         }else if($request->pbp == 'tambahan'){
@@ -1020,22 +1022,23 @@ WHERE tgl_serah !='';";
                         }
                         $kuantum = $rencana_salur;
                         if($kuantum==0){
-                            $pbp = $pbp_total;
-                            $persen_pbp = 0;
-                            $sisa = $kuantum-$pbp;
-                            $persen_sisa = 0;
-                        }else{
-                            $pbp = $pbp_total;
-                            $persen_pbp = ($pbp/$kuantum)*100;
-                            $sisa = $kuantum-$pbp;
-                            $persen_sisa = ($sisa/$kuantum)*100;
+                            $kuantum = 1;
                         }
+                        
+                             $pbp = $pbp_total;
+                             $persen_pbp = ($pbp/$kuantum)*100;
+                             $sisa = $kuantum-$pbp;
+                             $persen_sisa = ($sisa/$kuantum)*100;
+                        
                        
 
                         if (array_key_exists($request->kode_kab,$data)){
                             $data[$request->kode_kab]['kuantum_r'] += $kuantum;
                             $data[$request->kode_kab]['pbp_r'] += $pbp;
                             $data[$request->kode_kab]['sisa_r'] += $sisa;
+
+                            $data[$request->kode_kab]['persen_pbp'] = number_format(($data[$request->kode_kab]['pbp_r']/$data[$request->kode_kab]['kuantum_r'])*100,2);
+                            $data[$request->kode_kab]['persen_sisa'] = number_format(($data[$request->kode_kab]['sisa_r']/$data[$request->kode_kab]['kuantum_r'])*100,2);
 
                             $data[$request->kode_kab]['kuantum'] = number_format((int)$data[$request->kode_kab]['kuantum_r'],0,",",".");
                             $data[$request->kode_kab]['pbp'] = number_format((int)$data[$request->kode_kab]['pbp_r'],0,",",".");
@@ -1055,7 +1058,6 @@ WHERE tgl_serah !='';";
                                 "sisa_r"=>$sisa,
                             ];
                         }
-
 
                        
                     
