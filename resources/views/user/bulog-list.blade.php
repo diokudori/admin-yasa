@@ -162,8 +162,9 @@
         "targets": 6,
         "searchable": false,
         "render": function(data, type, row, meta){
-          var string = '<p>Kuantum: '+data['kuantum']+'<br>';
-            string += 'PBP: '+data['jumlah_pbp']+'<br>';
+          // var string = '<p>Kuantum: '+data['kuantum']+'<br>';
+          var string = '<p>';
+          string += 'PBP: '+data['jumlah_pbp']+'<br>';
             string += 'SPTJM: '+data['jumlah_sptjm']+'<br></p>';
             return string;
         },
@@ -184,7 +185,7 @@
         columns: [
             { data: null },
             { data: 'transporter_bast' },
-            { data: 'transporter_doc' },
+            { data: 'no_out' },
             { data: null },
             { data: 'tanggal_alokasi' },
             { data: 'titik_penyerahan' },

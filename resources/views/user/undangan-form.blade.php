@@ -37,8 +37,9 @@
                   <div class="form-group">
                     <label for="item_code">Jenis Penerima</label>
                     <select name="jenis_penerima" id="jenis_penerima" class="form-control select2">
-                      <option value="utama">UTAMA</option>
-                      <option value="tambahan">TAMBAHAN</option>
+                      @foreach($tambahan as $t => $v)
+                      <option value="{{$t}}">{{$v}}</option>
+                      @endforeach
                     </select>
                   </div>
                   <div class="form-group">

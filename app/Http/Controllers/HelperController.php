@@ -1184,6 +1184,7 @@ WHERE tgl_serah !='';";
                 // print_r($data);
                 // print_r($http_code);
                 // print_r($curlPost);
+                $error_msg = '';
                 $id_bulog = (isset($data['data']['id']))?$data['data']['id']:'0';
                 if ($http_code != 200) { 
                     $error_msg = 'Failed to receieve access token'; 

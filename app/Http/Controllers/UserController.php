@@ -1490,7 +1490,21 @@ class UserController extends Controller
             ->groupBy('kabupaten')->get();
             
         }else{
-            $users = DB::table('users')->selectRaw('name as kode_map, email as kabupaten, id as kode_kab')->where('db', $request->db)->where('role','!=','0')->groupBy('name')->get();
+            $users = DB::table('users as u')->selectRaw('u.name as kode_map, u.email as kabupaten, u.name as kode_kab')
+            ->where('u.db', $request->db)
+            ->where('u.role','!=','0')
+            ->groupBy('u.name')->get();
+
+            foreach ($users as $key => $value) {
+               
+                $tmp = DB::table('server_mapping as sm')->select('s.ip')
+                ->leftJoin('servers as s','sm.server','=','s.name')
+                ->where('sm.db', $request->db)
+                ->first();
+                // print_r($tmp2);
+                // $users[$key]->kode_kab = $tmp->kode_kab;
+                $users[$key]->ip = $tmp->ip;
+            }
         }
 
         return Response::JSON($users);
@@ -1755,6 +1769,7 @@ class UserController extends Controller
         'November',
         'Desember'
     );
+        $data['tambahan'] = ['utama'=>'UTAMA','B'=>'TAMBAHAN','C'=>'TAMBAHAN 2'];
     	return view('user/bast-form')->with($data);
     }
 
@@ -1778,10 +1793,10 @@ class UserController extends Controller
     		->where("kecamatan", $request->kecamatan)
     		->where("kelurahan", $request->kelurahan);
 
-            if($request->jenis_penerima=='tambahan'){
-                $list = $list->where('path_ktp','B');
-            }else if($request->jenis_penerima=='utama'){
-                $list = $list->where('path_ktp', '');
+            if($request->jenis_penerima=='utama'){
+                $list = $list->where('path_ktp','');
+            }else{
+                $list = $list->where('path_ktp', $request->jenis_penerima);
                 
             }
 
@@ -1843,6 +1858,7 @@ $bulan = array (
     	$data['wilayah'] = DB::table('users')->select('name')->where('id','!=','34')->groupBy('name')->get();
     	$data['wil'] = Auth::user()->name;
     	$data['bulans'] = $this->bulans[date('m')];
+        $data['tambahan'] = ['utama'=>'UTAMA','B'=>'TAMBAHAN','C'=>'TAMBAHAN 2'];
     	return view('user/undangan-form')->with($data);
     }
 
@@ -1863,10 +1879,11 @@ $bulan = array (
     		->where("kecamatan", $request->kecamatan)
     		->where("kelurahan", $request->kelurahan);
 
-            if($request->jenis_penerima=='tambahan'){
-                $list = $list->where('path_ktp','B');
-            }else if($request->jenis_penerima=='utama'){
-                $list = $list->whereIn('path_ktp', ['',NULL]);
+            if($request->jenis_penerima=='utama'){
+                $list = $list->where('path_ktp','');
+            }else{
+                $list = $list->where('path_ktp', $request->jenis_penerima);
+                
             }
 
     		$list = $list->orderBy("no_urut","asc")
