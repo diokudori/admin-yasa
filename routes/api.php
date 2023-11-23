@@ -311,7 +311,7 @@ Route::any('/offline/data/list', function (Request $request) {
         array_push($selectarr, $tahap.$value.' as '.$value);
     }
 
-    $data = DB::connection($db)->table($name)->select($selectarr)
+    $data = DB::connection($db)->table($table)->select($selectarr)
     ->where("kabupaten",$req['kab'])
     ->where("kecamatan",$req['kec'])
     ->where("kelurahan",$req['kel']);
