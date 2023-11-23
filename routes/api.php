@@ -273,7 +273,7 @@ Route::any('/offline/data/list', function (Request $request) {
         $req = $request->all();
     }
     $tahap = strtolower($req['tahap'])."_";
-    $url = 'https://ptyaons-apps.com:8080/api/user/data';
+    $url = 'http://ptyaons-apps.com:8080/api/user/data';
     $user = DB::table('users')->where('id', $req['user_id'])->first();
     $table = $user->name;
     $db = $user->db;
@@ -303,14 +303,14 @@ Route::any('/offline/data/list', function (Request $request) {
                     $table = $data['name'];
                     $jenis_penerima = $data['jenis_penerima'];
                 }
-
+            // print_r($data);
     $selectarr = ['id','no_urut','nama','provinsi','kabupaten','kecamatan','kelurahan','alamat','rw','rt','umur','kprk','prefik'];
     $tahaparr = ['tgl_serah','transactor','path_ktp','path_pbp','tgl_upload','status_penerima', 'pbp_uploaded'];
 
     foreach ($tahaparr as $key => $value) {
         array_push($selectarr, $tahap.$value.' as '.$value);
     }
-
+    // return json_encode(['jenis_penerima'=>$jenis_penerima]);
     $data = DB::connection($db)->table($table)->select($selectarr)
     ->where("kabupaten",$req['kab'])
     ->where("kecamatan",$req['kec'])
