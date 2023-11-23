@@ -258,6 +258,12 @@ Route::any('/data/list', function (Request $request) {
     return Response::JSON([$resp]);
 });
 
+Route::any('/user/data', function (Request $request) {
+    $req = $request->all();
+    $user = DB::table('users')->where('id', $req['user_id'])->first();
+    return Response::JSON($user);
+});
+
 Route::any('/offline/data/list', function (Request $request) {
     // die();
     $req = $request->json()->all();
@@ -267,7 +273,37 @@ Route::any('/offline/data/list', function (Request $request) {
         $req = $request->all();
     }
     $tahap = strtolower($req['tahap'])."_";
+    $url = 'https://ptyaons-apps.com:8080/api/user/data';
     $user = DB::table('users')->where('id', $req['user_id'])->first();
+    $table = $user->name;
+    $db = $user->db;
+    $curlPost = http_build_query(['user_id'=>$req['user_id']]); 
+
+                
+                $ch = curl_init();         
+                curl_setopt($ch, CURLOPT_URL, $url);         
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                curl_setopt($ch, CURLOPT_POST, 1);         
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                // curl_setopt($ch, CURLOPT_STDERR, $fp);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+                $data = json_decode(curl_exec($ch), true); 
+                $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                if ($http_code != 200) { 
+                    $error_msg = 'Failed to receieve access token'; 
+                    if (curl_errno($ch)) { 
+                        $error_msg = curl_error($ch); 
+                    } 
+
+                    $jenis_penerima = 'semua';
+                    
+                }else{
+                    $db = $data['db'];
+                    $table = $data['name'];
+                    $jenis_penerima = $data['jenis_penerima'];
+                }
+
     $selectarr = ['id','no_urut','nama','provinsi','kabupaten','kecamatan','kelurahan','alamat','rw','rt','umur','kprk','prefik'];
     $tahaparr = ['tgl_serah','transactor','path_ktp','path_pbp','tgl_upload','status_penerima', 'pbp_uploaded'];
 
@@ -275,10 +311,14 @@ Route::any('/offline/data/list', function (Request $request) {
         array_push($selectarr, $tahap.$value.' as '.$value);
     }
 
-    $data = DB::connection($user->db)->table($user->name)->select($selectarr)
+    $data = DB::connection($db)->table($name)->select($selectarr)
     ->where("kabupaten",$req['kab'])
     ->where("kecamatan",$req['kec'])
     ->where("kelurahan",$req['kel']);
+
+    if($jenis_penerima!='semua'){
+        $data = $data->where('path_ktp', $jenis_penerima);
+    }
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->get();
     
@@ -483,7 +523,7 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
         // }
         $tahap = strtolower($res['tahap'])."_";
         $tambahan = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->first()->path_ktp;
-        if($tambahan=='B'){
+        if($tambahan=='B'||$tambahan=='C'){
             if($data['status_penerima']=='4'){
                 $resp = DB::connection($user->db)->table($user->name)
                 ->where("kabupaten", $data['kabupaten'])
@@ -788,21 +828,30 @@ Route::any('/data/sync/list', function (Request $request) {
     $temp = [];
     foreach($data['files'] as $k => $v){
         $exp = explode("_", $v['filename']);
-        $prefik[] = $exp[1];
-        $temp[$exp[1]] = $k;
+        if(strlen($exp[1])==12){
+            $prefik[] = $exp[1];
+            $temp[$exp[1]] = $k;
+        }
+        
         // if(sizeof($exp)==3){
         //     $status_penerima[$exp[1]] = str_replace(".jpg", "", $exp[2]);
         // }
         
     }
+    $selectarr = ['id','no_urut','nama','provinsi','kabupaten','kecamatan','kelurahan','alamat','rw','rt','umur','kprk','prefik'];
+    $tahaparr = ['tgl_serah','transactor','path_ktp','path_pbp','tgl_upload','status_penerima', 'pbp_uploaded'];
+    $tahap = strtolower($data['tahap'])."_";
 
-    // print_r($status_penerima);
-
-    $resp = DB::connection($user->db)->table($user->name)->select("*")
+    foreach ($tahaparr as $key => $value) {
+        array_push($selectarr, $tahap.$value.' as '.$value);
+    }
+    // print_r($prefik);
+    
+    $resp = DB::connection($user->db)->table($user->name)->select($selectarr)
     ->where('kabupaten', $data['kab'])
     ->where('kecamatan', $data['kec'])
     ->where('kelurahan', $data['kel'])
-    ->where('tgl_serah', '')
+    ->where($tahap.'tgl_serah', '')
     ->whereIn('prefik', $prefik)
     ->get();
 
