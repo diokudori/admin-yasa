@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use PDF;
 use DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Response;
 use Redirect;
@@ -376,44 +377,88 @@ class UserController extends Controller
         $data['url_bulog'] = $data['url'].'/api/transporter/insert/';
         return view('user.foto-form')->with($data);
     }
-    public function fotoFormSimpan(Request $request){
+    // public function fotoFormSimpan(Request $request){
  
+    //     $request->validate([
+    //         'gambar.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Validasi untuk jenis file gambar
+    //     ]);
+    //     if($request->hasFile("gambar")){
+    //     $files = $request->file('gambar');
+    //     foreach ($files as $file) {
+    //         $namaFile = $file->getClientOriginalName(); // Nama asli file
+    //         $path = public_path().'/uploads/2023_NOV/pbp/';
+    //         $linkgambar = '/uploads/2023_NOV/pbp/jat';
+    //             $namaPisah = explode('_', $namaFile);
+    //             $namaPrefik = $namaPisah[1]; 
+    //             $namaUrut = $namaPisah[2]; 
+    //             $namaStatus = $namaPisah[3]; 
+
+    //             $file->move($path,$namaFile);
+    //             $data = DB::connection($request->db)->table($request->wilayah)
+    //             ->where('kelurahan', $request->kelurahan)
+    //             ->where('kecamatan', $request->kecamatan)
+    //             ->where('prefik', $namaPrefik)->update([
+    //                 '2023_nov_tgl_serah' => $request->tanggal_serah,
+    //                 '2023_nov_transactor' => Auth::user()->id,
+    //                 '2023_nov_path_ktp' => '',
+    //                 '2023_nov_path_pbp' => $path.'/'.$namaFile,
+    //                 '2023_nov_tgl_upload' => Carbon::now(),
+    //                 '2023_nov_status_penerima' => '1',
+    //                 '2023_nov_pbp_uploaded' => '1'
+    //                 // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
+    //             ]);
+    //         }
+
+    //     }
+    //     return redirect()->back()->with('success', $request->kelurahan);
+
+    // }
+    public function fotoFormSimpan(Request $request){
+
         $request->validate([
             'gambar.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Validasi untuk jenis file gambar
         ]);
+       
+            if($request->hasFile("gambar")){
+                $files = $request->file('gambar');
+                $tahap=strtolower($request->tahap)."_";
+                $failedFiles = array();
+                foreach ($files as $file) {
+                     try {
+                        $namaFile = $file->getClientOriginalName(); 
+                        $linkgambar = '/uploads/'.$request->tahap.'/pbp/'.$request->provinsi;
+                        $path = public_path().$linkgambar;
+                        $namaPisah = explode('_', $namaFile);
+                        $namaPrefik = $namaPisah[1]; 
+                        $namaUrut = $namaPisah[2]; 
+                        $namaStatus = $namaPisah[3]; 
+                        $file->move($path,$namaFile);
+                        $data = DB::connection($request->db)->table($request->wilayah)
+                        ->where('kelurahan', $request->kelurahan)
+                        ->where('kecamatan', $request->kecamatan)
+                        ->where('prefik', $namaPrefik)->update([
+                            $tahap.'tgl_serah' => $request->tanggal_serah,
+                            $tahap.'transactor' => Auth::user()->id,
+                            $tahap.'path_ktp' => '',
+                            $tahap.'path_pbp' =>  $linkgambar.'/'.$namaFile,
+                            $tahap.'tgl_upload' => Carbon::now(),
+                            $tahap.'status_penerima' => $namaStatus,
+                            $tahap.'pbp_uploaded' => '1'
+                            // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
+                        ]);
+                    } catch (\Exception $e) {
+                        array_push($failedFiles, $namaFile);
+                    }
 
-        $files = $request->file('gambar');
-        foreach ($files as $file) {
-            $namaFile = $file->getClientOriginalName(); // Nama asli file
-            $lokasiSimpan = public_path('uploads/2023_NOV/pbp/jatim_op_db'); // Direktori penyimpanan
-
-            $file->move($lokasiSimpan, $namaFile); // Simpan file ke direktori yang ditentukan
-                $namaPisah = explode('_', $namaFile);
-                $namaPrefik = $namaPisah[1]; 
-                $namaUrut = $namaPisah[2]; 
-                $namaStatus = $namaPisah[3]; 
-                $namaFile = $file->getClientOriginalName(); // Nama asli file
-                $lokasiSimpan = public_path('uploads/2023_NOV/pbp/jatim_op_db'); // Direktori penyimpanan
-
-                $file->move($lokasiSimpan, $namaFile); // Simpan file ke direktori yang ditentukan
-                // $data = DB::connection($request->db)->table('69100')
-                // ->where('kelurahan', $request->kelurahan)
-                // ->where('kecamatan', $request->kecamatan)
-                // ->where('prefik', $namaPrefik)->update([
-                //     '2023_okt_transactor' => '1'
-                //     // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
-                // ]);
-                $data = DB::connection($request->db)->table('69100')
-                ->where('kelurahan', 'BLEGA')
-                ->where('kecamatan', 'BLEGA')
-                ->where('prefik', '310103030082')
-                ->update(['2023_okt_transactor' => 4]);
-    
+                }
+                if(count($failedFiles)>0){
+                    return redirect()->back()->with('error', 'Upload Gagal',$failedFiles);
+                }else{
+                    return redirect()->back()->with('success', 'Berhasil Upload');
+                }
             }
-            return redirect()->back()->with('success', $request->kelurahan);
-
-        }
-
+         
+    }
     // $resp = DB::connection($request->db)
     // ->table($request->tahap.'_data_gudang')
     // ->updateOrInsert([
