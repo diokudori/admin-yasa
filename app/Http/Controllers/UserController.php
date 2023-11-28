@@ -76,7 +76,7 @@ class UserController extends Controller
     	}else if(Auth::user()->role==2){
             return redirect('bulog/entry');
         }else if(Auth::user()->role==1){
-            return redirect('entry/distribution');
+            return redirect('entry/foto');
         }
         
     }
@@ -366,15 +366,19 @@ class UserController extends Controller
         $data['wil'] = Auth::user()->name;
         $data['bulans'] = $this->bulans[date('m')];
         $data['db'] = Auth::user()->db;
-
+        $data['user_id'] = Auth::user()->id;
+        $sm = DB::table('server_mapping')->where('db',Auth::user()->db)->where('kprk',Auth::user()->name)->first();
+        $srv = DB::table('servers')->where('name',$sm->server)->first();
+        // print_r($sm);
+        $data['urlform'] = "http://".$srv->ip."/pbp-app/public/index.php/api/entry/foto/simpan";
         //live
-        $data['transporter_key'] = 'YAT_zvqXIcAOhy';
+        // $data['transporter_key'] = 'YAT_zvqXIcAOhy';
 
         // $data['transporter_key'] = 'YAT_KEY_gshuy';
 
-        $data['url'] = 'https://bpb.bulog.co.id';
+        // $data['url'] = 'https://bpb.bulog.co.id';
         // $data['url'] = 'https://bpb-sandbox.bulog.co.id';
-        $data['url_bulog'] = $data['url'].'/api/transporter/insert/';
+        // $data['url_bulog'] = $data['url'].'/api/transporter/insert/';
         return view('user.foto-form')->with($data);
     }
     // public function fotoFormSimpan(Request $request){

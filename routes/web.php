@@ -110,13 +110,15 @@ Route::post('entry/distribution/list', [UserController::class,'entryDistribution
 Route::post('entry/distribution/upload', [UserController::class,'entryDistributionUpload']);
 
 Route::get('bulog/entry', [UserController::class,'BulogEntry']);
-Route::get('bulog/fotoentry', [UserController::class,'fotoEntry']);
+
 Route::get('bulog/list', [UserController::class,'BulogList']);
 Route::post('bulog/list/data', [UserController::class,'BulogListData']);
 Route::get('bulog/data/kec', [UserController::class,'bulogDataKec']);
 Route::get('bulog/data/riwayat', [UserController::class,'bulogDataRiwayat']);
 Route::post('bulog/form/simpan', [UserController::class,'bulogFormSimpan']);
-Route::post('bulog/foto/simpan', [UserController::class,'fotoFormSimpan']);
+
+Route::get('entry/foto', [UserController::class,'fotoEntry']);
+Route::post('entry/foto/simpan', [UserController::class,'fotoFormSimpan']);
 
 
 // Route::get('/tampilkan-di-consssole', [UserController::class, 'tampilkanDiConsole']);

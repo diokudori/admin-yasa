@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    <h1>Entry Penyaluran BULOG</h1>
+    <h1>Entry Penerima Bantuan</h1>
 @stop
 
 @section('content')
@@ -11,15 +11,15 @@
         <div class="row">
           <!-- left column -->
           <div class="col-md-6 col-sm-12">
-          	@if (\Session::has('success'))
+          	@if (isset($_GET['success']))
     <div class="alert alert-success">
-        <h4>{!! \Session::get('success') !!}</h4>
+        <h4>{{$_GET['success']}}</h4>
     </div>
 @endif
-@if($errors->any())
+@if(isset($_GET['error']))
 <div class="alert alert-danger">
-	<h4>{{$errors->first()}}</h4>
-
+	<h4>Daftar foto gagal disimpan</h4>
+  <p>{{$_GET['error']}}</p>
 </div>
 @endif
             <!-- Horizontal Form -->
@@ -27,15 +27,11 @@
               <!-- /.card-header -->
               <!-- form start -->
               <input type="hidden" name="admin" value="{{Auth::user()->role}}">
-              @if ($message = Session::get('error'))
-<div class="alert alert-danger alert-block">
-    <button type="button" class="close" data-dismiss="alert">×</button>    
-    <strong>{{ $message }}</strong>
-</div>
-@endif
-              <form id="bulog-form" action="{{url('bulog/foto/simpan')}}" method="POST" enctype="multipart/form-data">
+             
+              <form id="bulog-form" action="{{$urlform}}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="transporter_key" id="transporter_key" value="{{$transporter_key}}">
+                
+                <input type="hidden" name="user_id" id="user_id" value="{{$user_id}}">
                 <input type="hidden" name="db" id="db" value="{{$db}}">
                 <input type="hidden" name="tanggal" value="{{date('Y-m-d')}}">
                 <input type="hidden" name="provinsi" value="{{$provinsi}}">
@@ -193,7 +189,7 @@ $(".select2").select2();
 wil.on("change", function(){
    	$.ajax({
 	    type: 'GET',
-	    url: '/pbp-app/public/index.php/kabupaten/list',
+	    url: "<?=url('kabupaten/list')?>",
 	    data: { table: wil.val() }
 	}).then(function (data) {
 		console.log(data);
@@ -220,7 +216,7 @@ wil.on("change", function(){
 kab.on("change", function(){
    	$.ajax({
 	    type: 'GET',
-	    url: '/pbp-app/public/index.php/kecamatan/list',
+	    url: "<?=url('kecamatan/list')?>",
 	    data: { kab: kab.val(), table: wil.val() }
 	}).then(function (data) {
 		console.log(data);
@@ -247,7 +243,7 @@ kab.on("change", function(){
 
 		$.ajax({
 	    type: 'GET',
-	    url: '/pbp-app/public/index.php/kelurahan/list',
+	    url: "<?=url('kelurahan/list')?>",
 	    data: {kec: kec.val(), table: wil.val()}
 	}).then(function (data) {
 		kel.html("");
@@ -273,48 +269,13 @@ kab.on("change", function(){
 
 
 	kel.on("change", function(){
-		var tahap = $('#tahap');
-		$.ajax({
-          type: 'GET',
-          url: "<?=url('realisasi/table/total')?>",
-          data: { db: db.val(), kab: kab.val(), kec: kec.val(), kel: kel.val(), tahap: tahap.val()}
-        }).then(function (data) {
-          console.log(data);
-         $('input[name=kuantum').val(data.kuantum);
-          getBulogKec();
-
-              
-            
-        });
+		
 
 	});
 
 	kel.trigger('change');
 
-	// $('input[name=jumlah_sptjm]').on('focusout',function(){
-	// 	var pbp = $('input[name=jumlah_pbp').val();
-	// 	var newpbp = pbp-$(this).val();
-	// 	$('input[name=jumlah_pbp').val(newpbp);
-	// });
 
-
-//   $("#bulog-form").on("submit", function(event){
-//       event.preventDefault();
-
-//       $.ajax({
-//           type: 'POST',
-//           url: "<?=$url_bulog?>",
-//           data: $( this ).serialize()
-//         }).then(function (data) {
-//           console.log("bulog", data);
-//               if(data.status){
-//                    toastr.success(data.message);
-//               }else{
-//                 toastr.warning(data.message);
-//               }
-            
-//         });
-// });
 
   function getBulogKec(){
       $.ajax({
