@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use Response;
+use Carbon\Carbon;
+use Redirect;
 class HelperController extends Controller
 {
 
@@ -1272,5 +1274,56 @@ WHERE tgl_serah !='';";
         }
 
         return response()->json(['message' => 'Data berhasil diupdate']);
+    }
+
+    public function fotoFormSimpan(Request $request){
+
+        $request->validate([
+            'gambar.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Validasi untuk jenis file gambar
+        ]);
+        // echo "string";
+            if($request->hasFile("gambar")){
+
+                $files = $request->file('gambar');
+                $tahap=strtolower($request->tahap)."_";
+                $failedFiles = array();
+                
+                foreach ($files as $file) {
+
+                     try {
+                        $namaFile = $file->getClientOriginalName(); 
+                        $linkgambar = '/uploads/'.$request->tahap.'/pbp/'.$request->provinsi;
+                        $path = public_path().$linkgambar;
+                        $namaPisah = explode('_', $namaFile);
+                        $namaPrefik = $namaPisah[1]; 
+                        $namaUrut = $namaPisah[2]; 
+                        $namaStatus = $namaPisah[3]; 
+                        $file->move($path,$namaFile);
+                        $data = DB::connection($request->db)->table($request->wilayah)
+                        ->where('kelurahan', $request->kelurahan)
+                        ->where('kecamatan', $request->kecamatan)
+                        ->where('prefik', $namaPrefik)->update([
+                            $tahap.'tgl_serah' => $request->tanggal_serah,
+                            $tahap.'transactor' => $request->user_id,
+                            $tahap.'path_ktp' => '',
+                            $tahap.'path_pbp' =>  $linkgambar.'/'.$namaFile,
+                            $tahap.'tgl_upload' => Carbon::now(),
+                            $tahap.'status_penerima' => $namaStatus,
+                            $tahap.'pbp_uploaded' => '1'
+                            // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
+                        ]);
+                    } catch (\Exception $e) {
+                        array_push($failedFiles, $namaFile);
+                    }
+
+                }
+                if(count($failedFiles)>0){
+                    $error_file = implode(',', $failedFiles);
+                    return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?error='.$error_file);
+                }else{
+                    return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?success=Berhasil Upload');
+                }
+            }
+         
     }
 }
