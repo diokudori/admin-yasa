@@ -81,9 +81,9 @@
             </div>
            
                   <div class="form-group">
-                <label>Tanggal Alokasi</label>
+                <label>Tanggal Serah</label>
                 <div class="col-sm-10 input-group date" id="expdate" data-target-input="nearest">
-                        <input type="text" name="tanggal_alokasi" class="form-control datetimepicker-input" data-target="#expdate" readonly="true" required />
+                        <input type="text" name="tanggal_serah" class="form-control datetimepicker-input" data-target="#expdate" readonly="true" required />
                         <div class="input-group-append" data-target="#expdate" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
