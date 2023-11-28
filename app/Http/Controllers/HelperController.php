@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use Response;
+use Carbon\Carbon;
+use Redirect;
 class HelperController extends Controller
 {
 
@@ -1278,12 +1280,15 @@ WHERE tgl_serah !='';";
         $request->validate([
             'gambar.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Validasi untuk jenis file gambar
         ]);
-       
+        // echo "string";
             if($request->hasFile("gambar")){
+
                 $files = $request->file('gambar');
                 $tahap=strtolower($request->tahap)."_";
                 $failedFiles = array();
+                
                 foreach ($files as $file) {
+
                      try {
                         $namaFile = $file->getClientOriginalName(); 
                         $linkgambar = '/uploads/'.$request->tahap.'/pbp/'.$request->provinsi;
@@ -1298,7 +1303,7 @@ WHERE tgl_serah !='';";
                         ->where('kecamatan', $request->kecamatan)
                         ->where('prefik', $namaPrefik)->update([
                             $tahap.'tgl_serah' => $request->tanggal_serah,
-                            $tahap.'transactor' => Auth::user()->id,
+                            $tahap.'transactor' => $request->user_id,
                             $tahap.'path_ktp' => '',
                             $tahap.'path_pbp' =>  $linkgambar.'/'.$namaFile,
                             $tahap.'tgl_upload' => Carbon::now(),
@@ -1312,9 +1317,10 @@ WHERE tgl_serah !='';";
 
                 }
                 if(count($failedFiles)>0){
-                    return redirect()->back()->with('error', 'Upload Gagal',$failedFiles);
+                    $error_file = implode(',', $failedFiles);
+                    return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?error='.$error_file);
                 }else{
-                    return redirect()->back()->with('success', 'Berhasil Upload');
+                    return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?success=Berhasil Upload');
                 }
             }
          
