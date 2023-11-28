@@ -902,6 +902,8 @@ Route::get('bulog/entry/{db}/{tahap}/{dest}', [HelperController::class,'hitBulog
 Route::get('generatebastdoc/{db}/{tahap}', [HelperController::class,'generateBastDoc']);
 
 Route::get('updatemigrasi', [HelperController::class,'updateMigrasi']);
+Route::post('entry/foto/simpan', [HelperController::class,'fotoFormSimpan']);
+
 
 
 
