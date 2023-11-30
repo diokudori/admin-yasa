@@ -367,7 +367,12 @@ class UserController extends Controller
         $data['bulans'] = $this->bulans[date('m')];
         $data['db'] = Auth::user()->db;
         $data['user_id'] = Auth::user()->id;
-        $sm = DB::table('server_mapping')->where('db',Auth::user()->db)->where('kprk',Auth::user()->name)->first();
+
+        $sm = DB::table('server_mapping')->where('db',Auth::user()->db);
+        if(Auth::user()->db=='mysql'){
+            $sm = $sm->where('kprk',Auth::user()->name);
+        }
+        $sm = $sm->first();
         $srv = DB::table('servers')->where('name',$sm->server)->first();
         // print_r($sm);
         $data['urlform'] = "http://".$srv->ip."/pbp-app/public/index.php/api/entry/foto/simpan";

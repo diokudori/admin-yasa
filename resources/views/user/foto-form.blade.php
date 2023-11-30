@@ -40,9 +40,11 @@
                 	<div class="form-group">
                     <label for="item_code">Tahap Penyaluran</label>
                     <select name="tahap" id="tahap" class="form-control select2">
-                    	@foreach($tahap as $t)
-                    	<option value="{{$t->value}}">{{$t->name}}</option>
-                    	@endforeach
+					<option value="2023_NOV">NOVEMBER 2023</option>
+
+                    	<!-- @foreach($tahap as $t) -->
+                    	<!-- <option value="{{$t->value}}">{{$t->name}}</option> -->
+                    	<!-- @endforeach -->
                       </select>
                   </div>
                 

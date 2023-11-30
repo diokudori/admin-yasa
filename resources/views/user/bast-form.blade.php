@@ -43,9 +43,13 @@
 
                   <div class="form-group">
                     <label for="item_code">Jenis Penerima</label>
-                    <select name="jenis_penerima" id="jenis_penerima" class="form-control select2">
+                    <select name="jenis_penerima" id="jenis_penerima" class="form-control">
                     	@foreach($tambahan as $t => $v)
-                      <option value="{{$t}}">{{$v}}</option>
+	                    	@if($t!="utama")
+	                      <option value="{{$t}}" class="opt-add">{{$v}}</option>
+	                      @else
+	                      <option value="{{$t}}">{{$v}}</option>
+	                      @endif
                       @endforeach
                     </select>
                   </div>
@@ -115,6 +119,7 @@
    	var kab = $("#kabupaten");
    	var kec = $("#kecamatan");
    	var kel = $("#kelurahan");
+   	var bulan = $("#bulan");
 
    	
 wil.trigger('change');
@@ -225,6 +230,16 @@ kab.on("change", function(){
 	        }
 	    });
 	});
+	});
+
+
+	bulan.on("change", function(){
+
+		if($(this).val()=='Desember'){
+			$(".opt-add").hide();
+		}else{
+			$(".opt-add").show();
+		}
 	});
 
    });
