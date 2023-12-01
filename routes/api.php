@@ -23,7 +23,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::any('/login', function(Request $request){
     $version = '6.1';
-    $tahap_name = ['2023_NOV'=>'Tahap November 2023','2023_SEP'=>'Tahap September 2023','2023_OKT'=>'Tahap Oktober 2023'];
+    $tahap_name = ['2023_DES'=>'Tahap Desember 2023', '2023_NOV'=>'Tahap November 2023','2023_SEP'=>'Tahap September 2023','2023_OKT'=>'Tahap Oktober 2023'];
     $data = $request->json()->all();
     // print_r($data);
     $password = \Hash::make($data['password']);
@@ -57,7 +57,7 @@ Route::any('/login', function(Request $request){
                     $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('kprk', $user[0]->name)->get();
 
                 }else{
-                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->get();
+                    $server = DB::table('server_mapping')->where('db', $user[0]->db)->get();
 
                 }
                
@@ -261,6 +261,17 @@ Route::any('/data/list', function (Request $request) {
 Route::any('/user/data', function (Request $request) {
     $req = $request->all();
     $user = DB::table('users')->where('id', $req['user_id'])->first();
+    if($user->db=='mysql'){
+
+                    // $server = DB::table('server_mapping')->where('db', $user[0]->db)->where('tahap', $user[0]->tahap)->where('kprk', $user[0]->name)->get();
+                    $server = DB::table('server_mapping')->where('db', $user->db)->where('kprk', $user->name)->get();
+
+                }else{
+                    $server = DB::table('server_mapping')->where('db', $user->db)->get();
+
+                }
+               
+    $user->server_ip = DB::table('servers')->where('name', $server[0]->server)->first()->ip;
     return Response::JSON($user);
 });
 
@@ -274,9 +285,8 @@ Route::any('/offline/data/list', function (Request $request) {
     }
     $tahap = strtolower($req['tahap'])."_";
     $url = 'http://ptyaons-apps.com:8080/api/user/data';
-    $user = DB::table('users')->where('id', $req['user_id'])->first();
-    $table = $user->name;
-    $db = $user->db;
+    // $user = DB::table('users')->where('id', $req['user_id'])->first();
+    
     $curlPost = http_build_query(['user_id'=>$req['user_id']]); 
 
                 
@@ -295,7 +305,8 @@ Route::any('/offline/data/list', function (Request $request) {
                     if (curl_errno($ch)) { 
                         $error_msg = curl_error($ch); 
                     } 
-
+                    $db = '';
+                    $table = '';
                     $jenis_penerima = 'semua';
                     
                 }else{
@@ -317,7 +328,18 @@ Route::any('/offline/data/list', function (Request $request) {
     ->where("kelurahan",$req['kel']);
 
     if($jenis_penerima!='semua'){
-        $data = $data->where('path_ktp', $jenis_penerima);
+        if($jenis_penerima=='C'){
+          $data = $data->where(function($data) use ($jenis_penerima){
+            $data->where('path_ktp', $jenis_penerima)->orWhere('path_ktp','');
+        }
+        );
+        }else if($jenis_penerima=='utama'){
+            $data = $data->where('path_ktp', '');
+        }else{
+          $data = $data->where('path_ktp', $jenis_penerima);  
+        }
+
+        
     }
     // $data_belum = DB::table($user->name)->where("tgl_serah","")->get();
     $total = $data->get();
@@ -453,9 +475,33 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
     $version = '6.1';
     // print_r($data);
     // return Response::JSON($data['prefik']);
-    $user = DB::table('users')->where('id', $res['user_id'])->first();
+    // $user = DB::table('users')->where('id', $res['user_id'])->first();
     $date = date('Y-m-d H:i:s');
     $data = $res['data'];
+    $url = 'http://ptyaons-apps.com:8080/api/user/data';
+     $curlPost = http_build_query(['user_id'=>$res['user_id']]); 
+
+                
+                $ch = curl_init();         
+                curl_setopt($ch, CURLOPT_URL, $url);         
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                curl_setopt($ch, CURLOPT_POST, 1);         
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                // curl_setopt($ch, CURLOPT_STDERR, $fp);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+                $data_curl = json_decode(curl_exec($ch), true); 
+                $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                if ($http_code != 200) { 
+                    $error_msg = 'Failed to receieve access token'; 
+                    if (curl_errno($ch)) { 
+                        $error_msg = curl_error($ch); 
+                    } 
+                    return Response::JSON(["status"=>false, "tgl_serah"=>$date]);
+                    
+                }else{
+                    $user = (object)$data_curl;
+                }
 
     if(!isset($res['version']) && $res['version']!=$version){
         return Response::JSON(["status"=>false, "tgl_serah"=>'']);
@@ -472,7 +518,8 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
 
         // print_r($folder);
         if($enabled>0){
-            $endpoint = "https://ptyaons-apps.com/drive/driveSync.php";
+            // $endpoint = "https://ptyaons-apps.com/drive/driveSync.php";
+            $endpoint = "http://ptyaons-apps.com/drive/driveSync.php";
         }else{
             return Response::JSON(["status"=>false, "tgl_serah"=>'']);
         }
@@ -506,9 +553,9 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
                 // $statusCode = $response->getStatusCode();
                 // // $content = $response->getBody();
                 // $content = json_decode($response->getBody(), true);
-                // if($folder!='dev_papua_db'){
+                if($folder!='dev_papua_db'){
                     // return Redirect::to($endpoint."?filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']);
-                // }
+                }
                 
 
             }else{
