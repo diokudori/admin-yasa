@@ -328,12 +328,14 @@ Route::any('/offline/data/list', function (Request $request) {
     ->where("kelurahan",$req['kel']);
 
     if($jenis_penerima!='semua'){
-        if($jenis_penerima=='C'){
-          $data = $data->where(function($data) use ($jenis_penerima){
-            $data->where('path_ktp', $jenis_penerima)->orWhere('path_ktp','');
-        }
-        );
-        }else if($jenis_penerima=='utama'){
+        // if($jenis_penerima=='C'){
+        //   $data = $data->where(function($data) use ($jenis_penerima){
+        //     $data->where('path_ktp', $jenis_penerima)->orWhere('path_ktp','');
+        // }
+        // );
+        // }
+
+        if($jenis_penerima=='utama'){
             $data = $data->where('path_ktp', '');
         }else{
           $data = $data->where('path_ktp', $jenis_penerima);  
@@ -502,7 +504,7 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
                 }else{
                     $user = (object)$data_curl;
                 }
-
+curl_close($ch);
     if(!isset($res['version']) && $res['version']!=$version){
         return Response::JSON(["status"=>false, "tgl_serah"=>'']);
     }
@@ -528,9 +530,13 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
 
         $filename = 'pbp_'.$data['prefik'].'_'.$data['no_urut'].'_'.$data['status_penerima'].'.jpg';
         $dir = public_path().'/uploads/'.$res['tahap'].'/pbp/'.$folder;
+
         $filepath = $dir.'/'.$filename;
+
+        $target = 'http://'.$user->server_ip.'pbp-app/public/uploads/'.$res['tahap'].'/pbp/'.$folder.'/'.$filename;
+
         if ( !file_exists( $dir ) && !is_dir( $dir ) ) {
-            mkdir( $dir, 0755 );       
+            mkdir( $dir, 0755, true );       
         } 
         $tahap = strtolower($res['tahap'])."_";
         $tambahan = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->first()->path_ktp;
@@ -558,33 +564,37 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
                 // $statusCode = $response->getStatusCode();
                 // // $content = $response->getBody();
                 // $content = json_decode($response->getBody(), true);
-                // if($res['tahap']!='2023_NOV'){
+                if($res['tahap']!='2023_NOV'){
                     //return Redirect::to($endpoint."?filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']."&tahap=".$res['tahap']."&tambahan=".$tambahan);
 
-                    // $curlPost = "filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']."&tahap=".$res['tahap']."&tambahan=".$tambahan;
-                    // $ch = curl_init();         
-                    // curl_setopt($ch, CURLOPT_URL, $endpoint);         
-                    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
-                    // curl_setopt($ch, CURLOPT_POST, 1);         
-                    // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
-                    // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-                    // // curl_setopt($ch, CURLOPT_STDERR, $fp);
-                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
-                    // $data_curl = json_decode(curl_exec($ch), true); 
-                    // $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
-                    // if ($http_code != 200) { 
-                    //     $error_msg = 'Failed to receieve access token'; 
-                    //     if (curl_errno($ch)) { 
-                    //         $error_msg = curl_error($ch); 
-                    //     } 
-                    //     return Response::JSON(["status"=>false, "tgl_serah"=>$date]);
+                    $curlPost = "filepath=".$filepath."&filename=".$filename."&db=".$folder."&table=".$user->name."&user_id=".$res['user_id']."&status_penerima=".$data['status_penerima']."&id=".$data['id']."&kabupaten=".$data['kabupaten']."&kecamatan=".$data['kecamatan']."&kelurahan=".$data['kelurahan']."&tgl_serah=".$data['tgl_serah']."&tahap=".$res['tahap']."&tambahan=".$tambahan;
+                    $ch = curl_init();         
+                    curl_setopt($ch, CURLOPT_URL, $endpoint);         
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                    curl_setopt($ch, CURLOPT_POST, 1);         
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                    curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                    // curl_setopt($ch, CURLOPT_STDERR, $fp);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+                    $data_curl = json_decode(curl_exec($ch), true); 
+                    $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                    // return Response::JSON(["status"=>false, "tgl_serah"=>$date, "msg"=>curl_error($ch)]);
+                    if ($http_code != 200) { 
+                        $error_msg = 'Failed to upload to drive'; 
+                        if (curl_errno($ch)) { 
+                            $error_msg = curl_error($ch); 
+                        } 
+                        return Response::JSON(["status"=>false, "tgl_serah"=>$date, "msg"=>$error_msg]);
                         
-                    // }else{
-                    //     unlink($filepath);
-                    //     $drive_resp = (object)$data_curl;
-                    //     $data['path_pbp'] = $drive_resp->file_url;
-                    // }
-                // }
+                    }else{
+                        unlink($filepath);
+                        $drive_resp = (object)$data_curl;
+                        $data['path_pbp'] = $drive_resp->file_url;
+
+
+                    }
+                    curl_close($ch);
+                }
                 
 
             }else{
@@ -844,7 +854,30 @@ Route::any('/data/offline/wilayah', function (Request $request) {
         $data = $request->all();
     }
     // $data = $request->all();
-    $user = DB::table('users')->where('id', $data['user_id'])->first();
+    $url = 'http://ptyaons-apps.com:8080/api/user/data';
+     $curlPost = http_build_query(['user_id'=>$data['user_id']]); 
+
+                
+                $ch = curl_init();         
+                curl_setopt($ch, CURLOPT_URL, $url);         
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                curl_setopt($ch, CURLOPT_POST, 1);         
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                // curl_setopt($ch, CURLOPT_STDERR, $fp);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+                $data_curl = json_decode(curl_exec($ch), true); 
+                $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                if ($http_code != 200) { 
+                    $error_msg = 'Failed to receieve access token'; 
+                    if (curl_errno($ch)) { 
+                        $error_msg = curl_error($ch); 
+                    } 
+                    return Response::JSON(["status"=>false, "tgl_serah"=>$date]);
+                    
+                }else{
+                    $user = (object)$data_curl;
+                }
     $kab = DB::connection($user->db)->table($user->name)->select("kabupaten")->groupBy("kabupaten")->get();
     $resp = [];
     foreach($kab as $k => $v){
