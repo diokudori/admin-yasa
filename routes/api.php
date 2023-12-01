@@ -26,6 +26,30 @@ Route::any('/login', function(Request $request){
     $tahap_name = ['2023_DES'=>'Tahap Desember 2023', '2023_NOV'=>'Tahap November 2023','2023_SEP'=>'Tahap September 2023','2023_OKT'=>'Tahap Oktober 2023'];
     $data = $request->json()->all();
     // print_r($data);
+    $ch = curl_init();         
+                    curl_setopt($ch, CURLOPT_URL, 'http://ptyaons-apps.com:8080/api/setting/version');         
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                    curl_setopt($ch, CURLOPT_POST, 1);         
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                    curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                    // curl_setopt($ch, CURLOPT_STDERR, $fp);
+                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+                    $data_curl = json_decode(curl_exec($ch), true); 
+                    $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                    // return Response::JSON(["status"=>false, "tgl_serah"=>$date, "msg"=>curl_error($ch)]);
+                    if ($http_code != 200) { 
+                        $error_msg = 'Failed to upload to drive'; 
+                        if (curl_errno($ch)) { 
+                            $error_msg = curl_error($ch); 
+                        } 
+                        $version = '0';
+                        
+                    }else{
+                        $version = $data_curl['data'];
+
+
+                    }
+                    curl_close($ch);
     $password = \Hash::make($data['password']);
     $user = DB::table('users')->where('username',$data['username'])->get();
     if(isset($data['version'])){
@@ -481,6 +505,32 @@ Route::middleware('throttle:1000,1')->any('/data/update/new', function (Request 
     $date = date('Y-m-d H:i:s');
     $data = $res['data'];
     $url = 'http://ptyaons-apps.com:8080/api/user/data';
+
+    $ch = curl_init();         
+                    curl_setopt($ch, CURLOPT_URL, 'http://ptyaons-apps.com:8080/api/setting/version');         
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                    curl_setopt($ch, CURLOPT_POST, 1);         
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                    curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                    // curl_setopt($ch, CURLOPT_STDERR, $fp);
+                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+                    $data_curl = json_decode(curl_exec($ch), true); 
+                    $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                    // return Response::JSON(["status"=>false, "tgl_serah"=>$date, "msg"=>curl_error($ch)]);
+                    if ($http_code != 200) { 
+                        $error_msg = 'Failed to upload to drive'; 
+                        if (curl_errno($ch)) { 
+                            $error_msg = curl_error($ch); 
+                        } 
+                        $version = '0';
+                        
+                    }else{
+                        $version = $data_curl['data'];
+
+
+                    }
+                    curl_close($ch);
+
      $curlPost = http_build_query(['user_id'=>$res['user_id']]); 
 
                 
@@ -797,7 +847,12 @@ Route::middleware('throttle:1000,1')->any('/data/update/new-tahap', function (Re
     return Response::JSON(["status"=>$resp, "tgl_serah"=>$date]);
 });
 
+Route::any('/setting/version', function (Request $request) {
+    $version = DB::table('settings')->where('name','version')->first()->value;
+    return Response::JSON(['data'=>$version]);
+    
 
+});
 
 Route::any('/data/tgl_upload', function (Request $request) {
     die();
