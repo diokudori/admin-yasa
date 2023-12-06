@@ -660,33 +660,44 @@ curl_close($ch);
         
         if($tambahan=='B'||$tambahan=='C'){
             if($data['status_penerima']=='4'){
+
+                $arr_update = [
+                "2023_nov_tgl_serah"=>$date, 
+                "2023_nov_transactor"=>$res['user_id'], 
+                "2023_nov_path_pbp"=>$data['path_pbp'], 
+                "2023_nov_status_penerima"=>$data['status_penerima'], 
+                "2023_nov_pbp_uploaded"=>$pbp_uploaded,
+                "2023_sep_tgl_serah"=>$date, 
+                "2023_sep_transactor"=>$res['user_id'], 
+                "2023_sep_path_pbp"=>$data['path_pbp'], 
+                "2023_sep_status_penerima"=>$data['status_penerima'], 
+                "2023_sep_pbp_uploaded"=>$pbp_uploaded,
+                "2023_okt_tgl_serah"=>$date, 
+                "2023_okt_transactor"=>$res['user_id'], 
+                "2023_okt_path_pbp"=>$data['path_pbp'], 
+                "2023_okt_status_penerima"=>$data['status_penerima'], 
+                "2023_okt_pbp_uploaded"=>$pbp_uploaded,
+                ];
+
+                if($res['tahap']=='2023_DES'){
+                    $arr_update = [
+                        $tahap."tgl_serah"=>$date, 
+                        $tahap."transactor"=>$res['user_id'], 
+                        $tahap."path_pbp"=>$data['path_pbp'], 
+                        $tahap."status_penerima"=>$data['status_penerima'], 
+                        $tahap."pbp_uploaded"=>$pbp_uploaded
+                    ];
+                }
                 $resp = DB::connection($user->db)->table($user->name)
                 ->where("kabupaten", $data['kabupaten'])
                 ->where("kecamatan", $data['kecamatan'])
                 ->where("kelurahan", $data['kelurahan'])
                 ->update(
-                [
-                "2023_nov_tgl_serah"=>$date, 
-                "2023_nov_transactor"=>$res['user_id'], 
-                "2023_nov_path_pbp"=>$data['path_pbp'], 
-                "2023_nov_status_penerima"=>$data['status_penerima'], 
-                "2023_nov_pbp_uploaded"=>$pbp_uploaded,
-                "2023_sep_tgl_serah"=>$date, 
-                "2023_sep_transactor"=>$res['user_id'], 
-                "2023_sep_path_pbp"=>$data['path_pbp'], 
-                "2023_sep_status_penerima"=>$data['status_penerima'], 
-                "2023_sep_pbp_uploaded"=>$pbp_uploaded,
-                "2023_okt_tgl_serah"=>$date, 
-                "2023_okt_transactor"=>$res['user_id'], 
-                "2023_okt_path_pbp"=>$data['path_pbp'], 
-                "2023_okt_status_penerima"=>$data['status_penerima'], 
-                "2023_okt_pbp_uploaded"=>$pbp_uploaded,
-                ]
+                    $arr_update
                 );
             }else{
 
-                $resp = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->update(
-                [
+                $arr_update = [
                 "2023_nov_tgl_serah"=>$date, 
                 "2023_nov_transactor"=>$res['user_id'], 
                 "2023_nov_path_pbp"=>$data['path_pbp'], 
@@ -702,7 +713,19 @@ curl_close($ch);
                 "2023_okt_path_pbp"=>$data['path_pbp'], 
                 "2023_okt_status_penerima"=>$data['status_penerima'], 
                 "2023_okt_pbp_uploaded"=>$pbp_uploaded,
-                ]
+                ];
+                if($res['tahap']=='2023_DES'){
+                    $arr_update = [
+                        $tahap."tgl_serah"=>$date, 
+                        $tahap."transactor"=>$res['user_id'], 
+                        $tahap."path_pbp"=>$data['path_pbp'], 
+                        $tahap."status_penerima"=>$data['status_penerima'], 
+                        $tahap."pbp_uploaded"=>$pbp_uploaded
+                    ];
+                }
+
+                $resp = DB::connection($user->db)->table($user->name)->where("id", $data['id'])->update(
+                $arr_update
                 );
             }
         }else if($tambahan=='' || $tambahan==NULL){
