@@ -1287,37 +1287,105 @@ WHERE tgl_serah !='';";
                 $files = $request->file('gambar');
                 $tahap=strtolower($request->tahap)."_";
                 $failedFiles = array();
+
+                $res = $request->all();
+
+                // $dir = public_path().'/uploads/'.$res['tahap'].'/pbp/'.$res['db'];
+                $endpoint = "http://".$_SERVER['SERVER_ADDR']."/drive/driveSync.php";
+                
+                $linkgambar = '/uploads/'.$request->tahap.'/pbp/'.$request->provinsi;
+                $path = public_path().$linkgambar;
+
+                if ( !file_exists( $path ) && !is_dir( $path ) ) {
+                    mkdir( $path, 0755, true );       
+                } 
                 
                 foreach ($files as $file) {
 
-                     try {
-                        $namaFile = $file->getClientOriginalName(); 
-                        $linkgambar = '/uploads/'.$request->tahap.'/pbp/'.$request->provinsi;
-                        $path = public_path().$linkgambar;
-                        $namaPisah = explode('_', $namaFile);
-                        $namaPrefik = $namaPisah[1]; 
-                        $namaUrut = $namaPisah[2]; 
-                        $namaStatus = $namaPisah[3]; 
-                        $file->move($path,$namaFile);
-                        $data = DB::connection($request->db)->table($request->wilayah)
-                        ->where('kelurahan', $request->kelurahan)
-                        ->where('kecamatan', $request->kecamatan)
-                        ->where('prefik', $namaPrefik)->update([
-                            $tahap.'tgl_serah' => $request->tanggal_serah,
-                            $tahap.'transactor' => $request->user_id,
-                            $tahap.'path_ktp' => '',
-                            $tahap.'path_pbp' =>  $linkgambar.'/'.$namaFile,
-                            $tahap.'tgl_upload' => Carbon::now(),
-                            $tahap.'status_penerima' => $namaStatus,
-                            $tahap.'pbp_uploaded' => '1'
-                            // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
-                        ]);
-                    } catch (\Exception $e) {
-                        array_push($failedFiles, $namaFile);
-                    }
+                    
+                        try {
+
+                            
+                            $namaFile = $file->getClientOriginalName(); 
+                            
+                            $namaPisah = explode('_', $namaFile);
+                            $namaPrefik = $namaPisah[1]; 
+                            $namaUrut = $namaPisah[2]; 
+                            $namaStatus = $namaPisah[3]; 
+                            $file->move($path,$namaFile);
+                            if($request->tahap=='2023_NOV'){
+                                
+                                $data = DB::connection($request->db)->table($request->wilayah)
+                                ->where('kelurahan', $request->kelurahan)
+                                ->where('kecamatan', $request->kecamatan)
+                                ->where('prefik', $namaPrefik)->update([
+                                    $tahap.'tgl_serah' => $request->tanggal_serah,
+                                    $tahap.'transactor' => $request->user_id,
+                                    $tahap.'path_ktp' => '',
+                                    $tahap.'path_pbp' =>  $linkgambar.'/'.$namaFile,
+                                    $tahap.'tgl_upload' => Carbon::now(),
+                                    $tahap.'status_penerima' => $namaStatus,
+                                    $tahap.'pbp_uploaded' => '1'
+                                    // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
+                                ]);
+
+                            }else{
+
+                                $namaFile = $file->getClientOriginalName(); 
+                                $filepath = $path.'/'.$namaFile;
+                                $curlPost = "filepath=".$filepath."&filename=".$namaFile."&db=".$request->db."&tahap=".$request->tahap;
+                                $ch = curl_init();         
+                                curl_setopt($ch, CURLOPT_URL, $endpoint);         
+                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);         
+                                curl_setopt($ch, CURLOPT_POST, 1);         
+                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+                                curl_setopt($ch, CURLOPT_VERBOSE, 1);
+                                // curl_setopt($ch, CURLOPT_STDERR, $fp);
+                                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+                                $data_curl = json_decode(curl_exec($ch), true); 
+                                $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+                                // return Response::JSON(["status"=>false, "tgl_serah"=>$date, "msg"=>curl_error($ch)]);
+                                if ($http_code != 200) { 
+                                    $error_msg = 'Failed to upload to drive'; 
+                                    if (curl_errno($ch)) { 
+                                        $error_msg = curl_error($ch); 
+                                    } 
+                                    // print_r($http_code);
+                                    return Response::JSON(["status"=>false, "msg"=>$error_msg]);
+                                    
+                                }else{
+                                    unlink($filepath);
+                                    $drive_resp = (object)$data_curl;
+                                    $path_pbp = $drive_resp->file_url;
+                                    $data = DB::connection($request->db)->table($request->wilayah)
+                                    ->where('kelurahan', $request->kelurahan)
+                                    ->where('kecamatan', $request->kecamatan)
+                                    ->where('prefik', $namaPrefik)->update([
+                                        $tahap.'tgl_serah' => $request->tanggal_serah,
+                                        $tahap.'transactor' => $request->user_id,
+                                        $tahap.'path_ktp' => '',
+                                        $tahap.'path_pbp' =>  $path_pbp,
+                                        $tahap.'tgl_upload' => Carbon::now(),
+                                        $tahap.'status_penerima' => $namaStatus,
+                                        $tahap.'pbp_uploaded' => '1'
+                                        // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
+                                    ]);
+
+
+                                }
+                                curl_close($ch);
+                            }
+                        } catch (\Exception $e) {
+                            // print_r($e);
+                            array_push($failedFiles, $namaFile);
+                        }
+                    
+
+                     
 
                 }
                 if(count($failedFiles)>0){
+                    // die();
                     $error_file = implode(',', $failedFiles);
                     return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?error='.$error_file);
                 }else{
