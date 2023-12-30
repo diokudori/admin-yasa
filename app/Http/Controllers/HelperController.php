@@ -1314,20 +1314,31 @@ WHERE tgl_serah !='';";
                             $namaStatus = $namaPisah[3]; 
                             $file->move($path,$namaFile);
                             if($request->tahap=='2023_NOV'){
+                                try{
+                                    
+                                    $data = DB::connection($request->db)->table($request->wilayah)
+                                            // ->where('kelurahan', $request->kelurahan)
+                                            // ->where('kecamatan', $request->kecamatan)
+                                            ->where('prefik', $namaPrefik)->update([
+                                                $tahap.'tgl_serah' => $request->tanggal_serah,
+                                                $tahap.'transactor' => $request->user_id,
+                                                $tahap.'path_ktp' => '',
+                                                $tahap.'path_pbp' =>  $linkgambar.'/'.$namaFile,
+                                                $tahap.'tgl_upload' => Carbon::now(),
+                                                $tahap.'status_penerima' => $namaStatus,
+                                                $tahap.'pbp_uploaded' => '1'
+                                                // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
+                                            ]);
+
+
+
+
+                                        
+                                            }catch (\Exception $e) {
+                                        // print_r($e);
+                                        array_push($failedFiles, $namaFile);
+                                    }
                                 
-                                $data = DB::connection($request->db)->table($request->wilayah)
-                                ->where('kelurahan', $request->kelurahan)
-                                ->where('kecamatan', $request->kecamatan)
-                                ->where('prefik', $namaPrefik)->update([
-                                    $tahap.'tgl_serah' => $request->tanggal_serah,
-                                    $tahap.'transactor' => $request->user_id,
-                                    $tahap.'path_ktp' => '',
-                                    $tahap.'path_pbp' =>  $linkgambar.'/'.$namaFile,
-                                    $tahap.'tgl_upload' => Carbon::now(),
-                                    $tahap.'status_penerima' => $namaStatus,
-                                    $tahap.'pbp_uploaded' => '1'
-                                    // Tambahkan pembaruan untuk kolom-kolom lain sesuai kebutuhan
-                                ]);
 
                             }else{
 
@@ -1358,8 +1369,8 @@ WHERE tgl_serah !='';";
                                     $drive_resp = (object)$data_curl;
                                     $path_pbp = $drive_resp->file_url;
                                     $data = DB::connection($request->db)->table($request->wilayah)
-                                    ->where('kelurahan', $request->kelurahan)
-                                    ->where('kecamatan', $request->kecamatan)
+                                    // ->where('kelurahan', $request->kelurahan)
+                                    // ->where('kecamatan', $request->kecamatan)
                                     ->where('prefik', $namaPrefik)->update([
                                         $tahap.'tgl_serah' => $request->tanggal_serah,
                                         $tahap.'transactor' => $request->user_id,
@@ -1384,12 +1395,14 @@ WHERE tgl_serah !='';";
                      
 
                 }
+
+                print_r($failedFiles);
                 if(count($failedFiles)>0){
                     // die();
                     $error_file = implode(',', $failedFiles);
-                    return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?error='.$error_file);
+                    // return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?error='.$error_file);
                 }else{
-                    return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?success=Berhasil Upload');
+                    // return Redirect::to('http://ptyaons-apps.com:8080/entry/foto?success=Berhasil Upload');
                 }
             }
          
